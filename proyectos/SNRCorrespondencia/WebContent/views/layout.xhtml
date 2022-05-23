@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets" >
+
+<p:poll interval="#{session.maxInactiveInterval - 10}" listener="#{gestorSesionBean.mantenerSesion}" />
+<p:idleMonitor timeout="300000">
+	<p:ajax event="idle" listener="#{gestorSesionBean.cerrarSesion}" />
+</p:idleMonitor>
+
+<p:dialog widgetVar="dialogoCargando" modal="true" draggable="false" closable="false" resizable="false" showHeader="false" responsive="true" onShow="PF('dialogoCargando').initPosition()" >
+    <p:graphicImage url="../images/ajaxloadingbar.gif" />
+</p:dialog>
+<p:ajaxStatus onsuccess="PF('dialogoCargando').hide()" />
+
+<p:growl id="growl" globalOnly="true" >
+	<p:autoUpdate />
+</p:growl>
+
+<p:dialog header="Alerta" widgetVar="dialogo_alerta" minHeight="40" modal="true" >
+    <h:outputText id="dialogo_alerta_texto" value="" />
+    <br/>
+    <br/>
+	<button type="button" onclick="PF('dialogo_alerta').hide();" style="margin:auto;display:block;"  >
+		#{messages.boton_ok}
+	</button>
+</p:dialog>
+
+<div style="text-align:center">
+	<div class="ui-g">
+		<div class="ui-g-3"></div>
+		<div align="center" class="ui-g-6 ui-md-6 ui-lg-6" style="padding: 0px;">
+			<p:commandLink action="#{gestorSesionBean.irAOpcion(1)}" ajax="false" immediate="true">
+				<p:graphicImage value="../images/Logo Registremos.png" style="max-width: 60%; height: auto; width: auto; background-color: white;" />
+			</p:commandLink>
+		</div>
+		<div style="max-width:20%;" class="ui-g-3 ui-md-3 ui-lg-3 d-none d-md-block">
+			<div class="ui-g-3 ui-md-2 ui-lg-2" >
+				<p:commandLink id="idCLHomeIcon" action="#{gestorSesionBean.irAOpcion(1)}" ajax="false" immediate="true">
+					<p:graphicImage id="idIInicio" style="width:150%;" value="../images/inicio40V3.png" />
+					<p:effect type="highlight" event="click" for="idIInicio" />
+					<p:tooltip id="idTTInicio" for="idIInicio" value="#{messages.etiqueta_MENU_INICIO}" trackMouse="true" />
+				</p:commandLink>
+			</div>
+			<div class="ui-g-2 ui-md-2 ui-lg-2" >
+				<p:commandLink id="idCLLanguageIcon" action="#{gestorSesionBean.cambiarIdioma}" ajax="false" immediate="true" >
+					<p:graphicImage id="idIIdioma" style="width: 150%;" value="../images/idioma40V3.png" />
+					<p:effect type="highlight" event="click" for="idIIdioma" />
+					<p:tooltip id="idTTIdioma" for="idIIdioma" value="#{messages.etiqueta_MENU_CAMBIARIDIOMA}" trackMouse="true" />
+				</p:commandLink>
+			</div>
+			<div class="ui-g-2 ui-md-2 ui-lg-2" >
+				<p:commandLink id="idCLLogOutIcon" action="#{gestorSesionBean.cerrarSesion}" ajax="false" immediate="true">
+					<p:graphicImage id="idICerrarSesion" style="width: 150%;" value="../images/cerrarSesion40V3.png" />
+					<p:effect type="highlight" event="click" for="idICerrarSesion" />
+					<p:tooltip id="idTTCerrarSesion" for="idICerrarSesion" value="#{messages.etiqueta_MENU_CERRARSESION}" trackMouse="true" />
+				</p:commandLink>
+			</div>
+		</div>
+	</div>
+	<div style="text-align:right" class="d-none d-md-block">
+		<ul class="nav navbar-nav navbar-right">
+			<li>
+				<strong><p:outputLabel value="#{messages.etiqueta_bienvenido}, #{gestorSesionBean.usuarioActual.nombre != null ? gestorSesionBean.usuarioActual.nombre : ''}" /></strong>
+			</li>
+			<li>
+				<strong><p:outputLabel value="#{messages.etiqueta_proceso_oficina}: #{gestorSesionBean.usuarioActual.oficina != null ? gestorSesionBean.usuarioActual.oficina.nombre : ''}" /></strong>
+			</li>
+			<li>
+				<strong><p:outputLabel value="#{messages.etiqueta_versionactual}: #{gestorSesionBean.versionActual}" /></strong>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<div class="wrapper">
+	<nav id="sidebar">
+		<div class="sidebar-header" style="color: #fff">
+			<h4>SUPERINTENDENCIA DE NOTARIADO Y REGISTRO</h4>
+		</div>
+		<ul class="list-unstyled components">
+			<ui:repeat var="menu" value="#{gestorSesionBean.menuList}">
+				<li><h:commandLink action="#{gestorSesionBean.irAOpcion(menu.id)}" value="#{menu.nombre}" immediate="true" /></li>
+			</ui:repeat>
+			<li><h:commandLink action="#{gestorSesionBean.cerrarSesion}" value="#{messages.etiqueta_MENU_CERRARSESION2}" immediate="true" /></li>
+		</ul>
+	</nav>
+	
+	<div class="content" style="width: 100%;">
+		<nav class="navbar navbar-default">
+			<div class="container-fluid" style="width: 100%;">
+				<button type="button" id="sidebarCollapse" class="navbar-btn">
+					<span></span> <span></span> <span></span>
+				</button>
+				<div class="d-none d-md-block" style="text-align:center">
+					<nav aria-label="breadcrumb nav navbar-nav navbar-right">
+						<ol class="breadcrumb" style="white-space: nowrap;">
+							<ui:repeat var="option" value="#{gestorSesionBean.breadcrumb}">
+								<li class="breadcrumb-item"><label class="ui-outputlabel ui-widget">#{option}</label></li>
+							</ui:repeat>
+						</ol>
+					</nav>
+				</div>
+			</div>
+		</nav>
+		
+		<div>
+			<p:fieldset style="margin-bottom:20px">
+				<ui:include src="#{gestorSesionBean.paginaActual}.xhtml" />
+			</p:fieldset>
+		</div>
+	</div>
+</div>
+</ui:composition>

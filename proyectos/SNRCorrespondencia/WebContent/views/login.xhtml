@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<f:view xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui" 
+	xmlns:ui="http://java.sun.com/jsf/facelets" locale="#{gestorSesionBean.locale}" >
+	<h:head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    	<title>SNR Correspondencia</title>
+    </h:head>
+	<h:body>
+		<link href="#{request.contextPath}/css/bootstrap.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="#{request.contextPath}/css/style.css" type="text/css" />
+		<link href="#{request.contextPath}/css/globales.css" rel="stylesheet" type="text/css" />
+
+		<script src="#{request.contextPath}/js/general.js?v=4" />
+		<script src="#{request.contextPath}/js/bioclient.js?v=4" />
+		
+		<div align="center">
+			<img src="#{facesContext.externalContext.requestContextPath}/images/Logo Registremos.png" style="max-width: 35%; height: auto; width: auto; background-color: white;" />
+		</div>
+
+		<div class="wrapper">
+			<div class="content" style="width: 100%;">
+				<div align="center" >
+					<h:form id="form1" styleClass="formLogin">
+						<p:poll interval="#{session.maxInactiveInterval - 10}" listener="#{gestorSesionBean.mantenerSesion}" />
+						<p:idleMonitor timeout="300000">
+							<p:ajax event="idle" listener="#{gestorSesionBean.cerrarSesion}" />
+						</p:idleMonitor>
+						
+						<p:dialog header="Alerta" widgetVar="dialogo_alerta" minHeight="40" modal="true" >
+    						<h:outputText id="dialogo_alerta_texto" value="" />
+    						<br/>
+    						<br/>
+							<button type="button" onclick="PF('dialogo_alerta').hide();" style="margin:auto;display:block;"  >
+								#{messages.boton_ok}
+							</button>
+						</p:dialog>
+						
+						<p:dialog widgetVar="dialogoCargando" modal="true" draggable="false" closable="false" resizable="false" showHeader="false" responsive="true" >
+						    <p:graphicImage url="../images/ajaxloadingbar.gif" />
+						</p:dialog>
+						<p:ajaxStatus onsuccess="PF('dialogoCargando').hide()" />
+						
+						<p:growl id="growl" globalOnly="true" life="2000" sticky="true" >
+							<p:autoUpdate />
+						</p:growl>
+		
+						<p:panelGrid columns="1" layout="grid" styleClass="col-md-3" rendered="#{gestorSesionBean.mostrarCamposLogin}" >
+							<h:outputLabel value="#{messages.etiqueta_usuario}" style="width:70%" >
+								<br/>
+								<p:inputText id="usuario" value="#{gestorSesionBean.usuario}" maxlength="100" required="true" />
+								<br/>
+								<p:message display="text" for="usuario" />
+							</h:outputLabel>
+							<h:outputLabel value="#{messages.etiqueta_clave}" style="width:70%" >
+								<br/>
+								<p:password id="clave" value="#{gestorSesionBean.clave}" maxlength="100" required="true" />
+								<br/>
+								<p:message display="text" for="clave" />
+							</h:outputLabel>
+							<p:commandButton actionListener="#{gestorSesionBean.login}" value="#{messages.boton_ingresar}" onclick="PF('dialogoCargando').show()" icon="fa fa-sign-in" />
+						</p:panelGrid>
+
+						<p:panelGrid columns="1" layout="grid" styleClass="col-md-3" rendered="#{!gestorSesionBean.mostrarCamposLogin}" >
+							<h:outputLabel value="#{messages.etiqueta_usuario}" style="width:70%" >
+								<br/>
+								<h:outputText value="#{gestorSesionBean.usuario}" />
+							</h:outputLabel>
+							<p:commandButton id="boton_login" action="#{gestorSesionBean.verificarSegundoFactor}" ajax="false" value="#{messages.boton_ingresar}" onclick="PF('dialogoCargando').show();" icon="fa fa-sign-in" />
+						</p:panelGrid>
+						<p:commandButton id="boton_inicializa" action="#{gestorSesionBean.inicializaVariables}" ajax="false" value="inicializa" onclick="PF('dialogoCargando').show();" style="display:none" />
+					</h:form>
+				</div>
+			</div>
+		</div>
+	</h:body>
+</f:view>

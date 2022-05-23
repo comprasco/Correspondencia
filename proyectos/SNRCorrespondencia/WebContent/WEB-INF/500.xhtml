@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets" >
+
+<head>
+	<title>Error en el servidor</title>
+	<style type="text/css">
+		@import url(http://fonts.googleapis.com/css?family=Bree+Serif|Source+Sans+Pro:300,400);
+		
+		* {
+			maring: 0;
+			padding: 0;
+		}
+		
+		body {
+			font-family: 'Source Sans Pro', sans-serif;
+			color: #1f3759;
+		}
+		
+		.bree-font {
+			font-family: 'Bree Serif', serif;
+		}
+		
+		#content {
+			margin: 0 auto;
+			width: 960px;
+		}
+		
+		.clearfix:after {
+			content: ".";
+			display: block;
+			clear: both;
+			visibility: hidden;
+			line-height: 0;
+			height: 0;
+		}
+		
+		.clearfix {
+			display: block;
+		}
+		
+		#main-body {
+			text-align: center;
+		}
+		
+		.enormous-font {
+			font-size: 7em;
+			margin-bottom: 0em;
+		}
+		
+		.big-font {
+			font-size: 2em;
+		}
+	</style>
+</head>
+
+<h:body>
+	<div id="formulario" align="center">
+		<h:form>
+			<p class="enormous-font bree-font">:(</p>
+			<p class="big-font">Error Interno en el servidor</p>
+			<p class="big-font">Por favor contacte al administrador del sistema</p>
+		</h:form>
+	</div>
+</h:body>
+</ui:composition>

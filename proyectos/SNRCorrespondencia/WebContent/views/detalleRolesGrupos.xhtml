@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets" >
+
+	<p:commandButton action="#{rolesGruposBean.buscar}" value="#{messages.boton_regresar}" ajax="false" icon="fa fa-arrow-circle-left" immediate="true" />
+	<hr />
+
+	<p:panel header="#{messages.etiqueta_rolesgrupos_titulo}#{rolesGruposBean.rolSeleccionado.nombre}" toggleable="true" >
+		<p:pickList id="pickList" value="#{rolesGruposBean.grupos}" var="grupo" itemLabel="#{grupo.nombre}" itemValue="#{grupo}" 
+		showSourceFilter="true" showTargetFilter="true" filterMatchMode="contains" converter="pickListGruposConverter" responsive="true" >
+			<f:facet name="sourceCaption">#{messages.etiqueta_disponibles}</f:facet>
+        	<f:facet name="targetCaption">#{messages.etiqueta_seleccionados}</f:facet>
+        </p:pickList>
+   	</p:panel>
+	<hr />
+	<p:commandButton actionListener="#{rolesGruposBean.guardar}" value="#{messages.boton_guardar}" onclick="PF('dialogoCargando').show();" ajax="false" icon="fa fa-save" />
+</ui:composition>

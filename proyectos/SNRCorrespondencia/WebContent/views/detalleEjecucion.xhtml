@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:c="http://java.sun.com/jsp/jstl/core" >
+
+	<p:dialog id="dialogovisualizardocumentos" widgetVar="dialogovisualizardocumentos" header="#{messages.boton_visorarchivos}" modal="true" responsive="true" styleClass="dialogo" >
+		<h:panelGroup id="panelvisualizardocumentos">
+			<p:panelGrid columns="1" layout="grid" >
+				<p:dataGrid var="dato" value="#{ejecucionBean.documentosVisualizar}" columns="1" layout="grid" rendered="#{not empty ejecucionBean.documentosVisualizar}" >
+					<h:commandLink title="#{dato.text}" onclick="verOracleWCCVisor('#{dato.clave}')" >
+						<f:ajax />
+			            <p:graphicImage value="../images/findx16.png" width="16"/>
+					</h:commandLink>
+					<h:outputText value="#{dato.text}" styleClass="texto_snr" />
+				</p:dataGrid>
+				<h:panelGroup rendered="#{empty ejecucionBean.documentosVisualizar}" >
+					<br/>
+					<h:outputText value="#{messages.etiqueta_noregistros}" />
+				</h:panelGroup>
+			</p:panelGrid>
+			<hr/>
+			<h:panelGroup>
+				<p:commandButton value="#{messages.boton_cerrar}" onclick="PF('dialogovisualizardocumentos').hide();" process="@this" />
+			</h:panelGroup>
+		</h:panelGroup>
+	</p:dialog>
+
+
+	<p:dialog id="dialogolistaparametro" widgetVar="dialogolistaparametro" modal="true" responsive="true" styleClass="dialogo" >
+		<f:facet name="header">
+			<h:outputText id="titulopanellistaparametro" value="#{ejecucionBean.tituloPopupAgregarListaParametros}" />
+		</f:facet>
+		<h:panelGroup id="panellistaparametro">
+			<p:panelGrid columns="1" layout="grid" rendered="#{ejecucionBean.parametroAgregar!=null}">
+				<p:panelGrid columns="1" layout="grid">
+					<p:messages display="text" globalOnly="true" />
+				</p:panelGrid>
+				<p:panelGrid columns="2" layout="grid">
+					<h:outputLabel value="#{messages.etiqueta_entrada_clave}" rendered="#{ejecucionBean.parametroAgregar.opcionesClaveValor}" style="width:100%" >
+						<br/>
+						<p:inputText id="claveopcion" value="#{ejecucionBean.parametroNuevaOpcion.clave}" maxlength="#{ejecucionBean.parametroAgregar.longitudItem}" required="true" disabled="#{!ejecucionBean.parametroNuevaOpcion.nuevo}" >
+							<p:ajax process="@this" />
+						</p:inputText>
+						<br/>
+						<p:message display="text" for="claveopcion" />
+					</h:outputLabel>
+					<h:outputLabel value="#{messages.etiqueta_entrada_valor}" style="width:100%">
+						<br/>
+						<p:inputText id="nombreopcion" value="#{ejecucionBean.parametroNuevaOpcion.nombre}" maxlength="#{ejecucionBean.parametroAgregar.longitudItem}" required="true" disabled="#{!ejecucionBean.parametroNuevaOpcion.nuevo}" >
+							<p:ajax process="@this" />
+						</p:inputText>										
+						<br/>
+						<p:message display="text" for="nombreopcion" />
+					</h:outputLabel>
+				</p:panelGrid>
+
+				<p:dataGrid var="dato" value="#{ejecucionBean.getListaDatosAdicionales()}" columns="2" layout="grid" rendered="#{not empty ejecucionBean.getListaDatosAdicionales() and !ejecucionBean.parametroNuevaOpcion.valorNulo}" >
+					<h:outputLabel value="#{ejecucionBean.getNombreDato(dato)}" style="width:100%">
+						<h:panelGroup rendered="#{ejecucionBean.getTipoDato(dato)=='TEXT'}">
+							<p:inputText id="entradatypetext" value="#{ejecucionBean.parametroNuevaOpcion.datosAdicionales[dato]}" maxlength="#{ejecucionBean.getLongitudDato(dato)}" style="width:100%"  >
+								<p:ajax process="@this" />
+							</p:inputText>
+							<br />
+							<p:message display="text" for="entradatypetext" />
+						</h:panelGroup>
+						<h:panelGroup rendered="#{ejecucionBean.getTipoDato(dato)=='TEXTO_NUMERICO'}">
+							<p:inputText id="entradanumerica" value="#{ejecucionBean.parametroNuevaOpcion.datosAdicionales[dato]}" onkeypress="validateInputNumber()" maxlength="#{ejecucionBean.getLongitudDato(dato)}" style="width:100%"  >
+								<p:ajax process="@this" />
+							</p:inputText>
+							<br />
+							<p:message display="text" for="entradanumerica" />
+						</h:panelGroup>
+						<h:panelGroup rendered="#{ejecucionBean.getTipoDato(dato)=='DATE'}">
+							<p:calendar id="entradafecha" value="#{ejecucionBean.parametroNuevaOpcion.datosAdicionales[dato]}" pattern="dd/MM/yyyy" autocomplete="off" locale="#{facesContext.externalContext.requestLocale}" mask="true" navigator="true" showOtherMonths="true" selectOtherMonths="true" style="width:100%" >
+								<p:ajax process="@this" event="dateSelect" /> 
+							</p:calendar>
+							<br/>
+							<p:message display="text" for="entradafecha" />
+						</h:panelGroup>
+						<h:panelGroup id="panelemail" rendered="#{ejecucionBean.getTipoDato(dato)=='EMAIL'}">
+							<p:inputText id="entradatypeemail" value="#{ejecucionBean.parametroNuevaOpcion.datosAdicionales[dato]}" maxlength="#{ejecucionBean.getLongitudDato(dato)}" >
+								<f:validator validatorId="co.gov.supernotariado.bachue.correspondencia.util.EmailValidator" />
+								<p:ajax event="blur" update="panelemail" />
+							</p:inputText>
+							<br/>
+							<p:message display="text" for="entradatypeemail" />
+						</h:panelGroup>
+					</h:outputLabel>
+				</p:dataGrid>
+			</p:panelGrid>
+			<hr/>
+			<h:panelGroup>
+				<p:commandButton actionListener="#{ejecucionBean.guardarOpcionParametro}" value="#{messages.boton_guardar}" onclick="if(confirm('#{messages.mensaje_proceso_confirmarguardar}')){return true;}else{return false;}" icon="fa fa-save" process=":form1:panellistaparametro" update=":form1:panellistaparametro :form1:rowentradas" />
+				<p:commandButton actionListener="#{ejecucionBean.cerrarOpcionParametro}" value="#{messages.boton_cerrar}" onclick="PF('dialogolistaparametro').hide();" process="@this" update=":form1:panellistaparametro :form1:rowentradas" />
+			</h:panelGroup>
+		</h:panelGroup>
+	</p:dialog>
+
+
+
+	<p:dialog id="dialogovisorpdf" header="PDF" widgetVar="dialogovisorpdf" modal="true" responsive="true" width="70%" height="400" styleClass="dialogo" >
+		<h:panelGroup id="panelpdfviewer" >
+			<h:panelGroup rendered="#{ejecucionBean.idValorEntradaSeleccionada gt 0}" >
+				<iframe src="#{request.contextPath}/Descargar?t=1&#38;v=#{ejecucionBean.idValorEntradaSeleccionada}" id="idpdfviewer" style="width:100%;height:90%" title="visor_pdf" />
+			</h:panelGroup>
+		</h:panelGroup>
+	</p:dialog>
+
+	<p:commandButton action="#{ejecucionBean.backList}" value="#{messages.boton_regresar}" ajax="false" icon="fa fa-arrow-circle-left" immediate="true" />
+	<hr/>
+
+	<h:panelGroup id="colpaso" rendered="#{ejecucionBean.data != null}" >
+		<p:panelGrid columns="1" layout="grid">
+			<p:panel header="#{messages.etiqueta_datosdelproceso}" toggleable="true">
+				<p:panelGrid columns="4" layout="grid" >
+					<h:outputLabel value="#{messages.etiqueta_proceso_proceso}" rendered="#{ejecucionBean.procesos.size() gt 1 and ejecucionBean.data.id == 0}" style="width:50%" >
+						<br/>
+						<p:selectOneMenu value="#{ejecucionBean.procesoSeleccionado}" valueChangeListener="#{ejecucionBean.listenerCambiarProceso}" disabled="#{ejecucionBean.data.id != 0}" onchange="PF('dialogoCargando').show();" style="width:100%" >
+							<f:selectItem itemValue="#{0}" itemLabel="#{messages.etiqueta_seleccione}" /> 
+							<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{ejecucionBean.procesos}" var="data" /> 
+							<p:ajax update="@form" />
+						</p:selectOneMenu>
+					</h:outputLabel>
+
+					<h:outputLabel value="#{messages.etiqueta_proceso_proceso}" rendered="#{ejecucionBean.data.paso != null and (ejecucionBean.data.id gt 0 or ejecucionBean.procesos.size() == 1)}" style="width:50%" >
+						<br/>
+						<h:outputText value="#{ejecucionBean.data.paso.proceso.nombre}" styleClass="texto_snr" />
+					</h:outputLabel>
+					<h:outputLabel value="#{messages.etiqueta_proceso_version}" rendered="#{ejecucionBean.data.paso != null}" >
+						<br/>
+						<h:outputText value="#{ejecucionBean.data.paso.proceso.numeroMayorVersion}.0" styleClass="texto_snr" />
+					</h:outputLabel>
+
+					<h:outputLabel value="#{messages.etiqueta_id}" rendered="#{ejecucionBean.data.procesoEjecutado.id gt 0}" style="width:50%" >
+						<br/>
+						<h:outputText value="#{ejecucionBean.data.procesoEjecutado.id}" styleClass="texto_snr" />
+					</h:outputLabel>
+					<h:outputLabel value="#{messages.etiqueta_secuencia}" rendered="#{not empty ejecucionBean.data.procesoEjecutado.secuenciaProceso}" style="width:50%" >
+						<br/>
+						<h:outputText value="#{ejecucionBean.data.procesoEjecutado.secuenciaProceso}" styleClass="texto_snr" />
+					</h:outputLabel>
+
+					<h:panelGroup rendered="#{not empty ejecucionBean.data.paso.proceso.categorias}">
+						<h:outputLabel value="#{empty ejecucionBean.data.paso.proceso.nombreCategoria?ejecucion.etiqueta_proceso_categoria:ejecucionBean.data.paso.proceso.nombreCategoria}" style="width:50%" >
+							<br/>
+							<h:outputText value="#{ejecucionBean.data.procesoEjecutado.categoria.nombre}" rendered="#{ejecucionBean.data.id != 0}" styleClass="texto_snr" />
+							<p:selectOneMenu value="#{ejecucionBean.categoriasSeleccionadas}" rendered="#{ejecucionBean.data.id == 0}" style="width:100%" >
+								<f:selectItems itemValue="#{data.categoria.id}" itemLabel="#{data.categoria.nombre}" value="#{ejecucionBean.data.paso.proceso.categorias}" var="data" /> 
+							</p:selectOneMenu>
+						</h:outputLabel>
+					</h:panelGroup>
+				</p:panelGrid>
+			</p:panel>
+
+			<p:panel header="#{messages.etiqueta_procesodetalles_anteriores}" toggleable="true" rendered="#{ejecucionBean.procesoSeleccionado gt 0 and not empty ejecucionBean.pasosAnteriores}">
+				<p:accordionPanel var="paso" value="#{ejecucionBean.pasosAnteriores}" multiple="true" activeIndex="null" >
+					<p:tab title="#{ejecucionBean.getNombrePaso(paso)}" titleStyle="font-size:16px;" >
+						<p:panelGrid columns="2" layout="grid" >
+				    		<h:outputLabel value="#{messages.etiqueta_proceso_fechaejecucion}" >
+				    			<br/>
+					    		<h:outputText value="#{paso.fechaCreacion}" styleClass="texto_snr" >
+					    			<f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="#{ejecucionBean.timeZone}" />
+								</h:outputText>
+							</h:outputLabel>
+				    		<h:outputLabel value="#{messages.etiqueta_usuarioqueejecuto}" rendered="#{paso.usuarioAsignado!=null or paso.grupoAsignado!=null}" >
+				    			<br/>
+					    		<h:outputText value="#{paso.usuarioAsignado.nombre}" rendered="#{not empty paso.usuarioAsignado}" styleClass="texto_snr" />
+					    		<h:outputText value="#{paso.grupoAsignado.nombre}" rendered="#{not empty paso.grupoAsignado.nombre}" styleClass="texto_snr" />
+							</h:outputLabel>
+				    		<h:outputLabel value="#{messages.etiqueta_paso_asignadoa}" rendered="#{paso.paso.jsonPasoData.permitirParalelo and (paso.listaUsuariosAsignados.size() gt 1 or paso.listaGruposAsignados.size() gt 1)}" >
+				    			<br/>
+								<ui:repeat var="usu" value="#{paso.listaUsuariosAsignados}" rendered="#{not empty paso.listaUsuariosAsignados}" >
+					    			<h:outputText value="#{usu.nombre}" styleClass="texto_snr" />
+					    			<br/>
+								</ui:repeat>
+								<ui:repeat var="gru" value="#{paso.listaGruposAsignados}" rendered="#{not empty paso.listaGruposAsignados}" >
+					    			<h:outputText value="#{gru.nombre}" styleClass="texto_snr" />
+					    			<br/>
+								</ui:repeat>
+							</h:outputLabel>
+				    		<h:outputLabel value="#{messages.etiqueta_proceso_comentarios}" rendered="#{not empty paso.comentario}" >
+				    			<br/>
+					    		<h:outputText value="#{paso.comentario}" styleClass="texto_snr" />
+							</h:outputLabel>
+						</p:panelGrid>			    		
+						<h:panelGroup rendered="#{not empty paso.entradas}">
+				    		<hr/>
+							<p:dataGrid var="entrada" value="#{paso.entradas}" columns="2" layout="grid" >
+								<ui:include src="detalleEjecucionEntradasAnteriores.xhtml" />
+							</p:dataGrid>
+						</h:panelGroup>
+					</p:tab>
+				</p:accordionPanel>
+			</p:panel>
+
+			<p:panel header="#{messages.etiqueta_ejecutaretapa}: #{ejecucionBean.data.paso.ordenPaso} - #{ejecucionBean.data.paso.nombre}" toggleable="true" rendered="#{ejecucionBean.procesoSeleccionado gt 0 and ejecucionBean.data.activo and ejecucionBean.permitirEjecutarPaso}">
+				<p:panelGrid columns="2" layout="grid" >
+					<h:outputLabel value="#{messages.etiqueta_proceso_fechahora}" rendered="#{ejecucionBean.permitirEjecutarPaso}" >
+						<br/>
+						<h:outputText value="#{ejecucionBean.data.fechaCreacion}" styleClass="texto_snr" >
+							<f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="#{ejecucionBean.timeZone}" />
+						</h:outputText>
+					</h:outputLabel>
+				</p:panelGrid>
+
+				<p:panelGrid columns="1" layout="grid" rendered="#{not empty ejecucionBean.entradas and ejecucionBean.procesoSeleccionado gt 0 and !ejecucionBean.data.ultimoPaso and ejecucionBean.permitirEjecutarPaso}">
+					<hr/>
+				</p:panelGrid>
+				<p:panelGrid columns="1" layout="grid" id="rowentradas" rendered="#{not empty ejecucionBean.entradas and ejecucionBean.procesoSeleccionado gt 0 and !ejecucionBean.data.ultimoPaso and ejecucionBean.permitirEjecutarPaso}">
+					<p:dataGrid var="entrada" value="#{ejecucionBean.listaEntradas}" columns="#{ejecucionBean.data.paso.jsonPasoData.columnasFormulario}" layout="grid" >
+						<ui:include src="detalleEjecucionEntradas.xhtml" />
+					</p:dataGrid>
+					<p:dataGrid var="entrada" value="#{ejecucionBean.listaEntradasTextArea}" columns="1" layout="grid" >
+						<h:outputLabel value="#{ejecucionBean.obtenerNombreEntrada(entrada.entrada)}" style="width:100%" >
+							<br/>
+							<p:inputTextarea id="entradatypetexpaso" value="#{entrada.valor}" required="#{entrada.entrada.requerido}" rows="6" maxlength="#{entrada.entrada.longitud}" >
+								<p:ajax event="blur" />
+							</p:inputTextarea>
+							<br/>
+							<p:message display="text" for="entradatypetexpaso" />
+						</h:outputLabel>
+					</p:dataGrid>
+				</p:panelGrid>
+				
+				<h:panelGroup id="infosiguientepaso" >
+					<p:panelGrid columns="1" layout="grid" rendered="#{ejecucionBean.proximoPaso!=null and ejecucionBean.permitirEjecutarPaso}" >
+						<h:panelGroup rendered="#{!ejecucionBean.proximoPaso.jsonPasoData.ocultarSeleccionUsuarios and (ejecucionBean.proximoPaso.usuarioAsignadoId != null or (ejecucionBean.proximoPaso.usuarioAsignadoId == null and ejecucionBean.proximoPaso.grupoAsignadoId == null) or ejecucionBean.proximoPaso.jsonPasoData.mostrarUsuariosGrupos)}" style="#{ejecucionBean.proximoPaso.usuarioAsignadoId != null?'display:none':''}" >
+							<h:outputLabel value="#{messages.etiqueta_proceso_usuarioproximopaso}" rendered="#{(ejecucionBean.proximoPaso.usuarioAsignadoId !=null and !ejecucionBean.proximoPaso.jsonPasoData.ocultarSeleccionUsuarios) or ejecucionBean.proximoPaso.usuarioAsignadoId == null}" >
+								<br/>
+								<p:selectOneMenu value="#{ejecucionBean.proximoPaso.usuarioAsignadoId}" disabled="#{ejecucionBean.proximoPaso.usuarioAsignadoId != null}" rendered="#{ejecucionBean.proximoPaso.usuarioAsignadoId != null}" >
+									<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{ejecucionBean.proximoPaso.jsonPasoData.usuariosSeleccionadosMostrar}" var="data" /> 
+								</p:selectOneMenu>
+								
+								<h:panelGroup rendered="#{ejecucionBean.proximoPaso.usuarioAsignadoId == null}" >
+									<p:selectCheckboxMenu id="tpasousuario" widgetVar="tpasousuario" value="#{ejecucionBean.usuariosAsignados}" rendered="#{ejecucionBean.data.paso.jsonPasoData.permitirParalelo}" label="#{messages.etiqueta_proceso_seleccionusuarioproximopaso}" filter="true" filterMatchMode="contains" styleClass="multiselector" multiple="true" style="width:300px" >
+										<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{ejecucionBean.proximoPaso.jsonPasoData.usuariosSeleccionadosMostrar}" var="data" /> 
+									</p:selectCheckboxMenu>
+									<p:selectOneMenu value="#{ejecucionBean.usuarioAsignado}" rendered="#{!ejecucionBean.data.paso.jsonPasoData.permitirParalelo}" filter="true" filterMatchMode="contains" style="width:300px" >
+										<f:selectItem itemValue="" itemLabel="" /> 
+										<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{ejecucionBean.proximoPaso.jsonPasoData.usuariosSeleccionadosMostrar}" var="data" /> 
+									</p:selectOneMenu>
+								</h:panelGroup>
+							</h:outputLabel>
+						</h:panelGroup>
+						
+						<h:panelGroup rendered="#{!ejecucionBean.proximoPaso.jsonPasoData.ocultarSeleccionGrupos and ((ejecucionBean.proximoPaso.grupoAsignadoId != null and !ejecucionBean.proximoPaso.jsonPasoData.mostrarUsuariosGrupos) or (ejecucionBean.proximoPaso.usuarioAsignadoId == null and ejecucionBean.proximoPaso.grupoAsignadoId == null))}" >
+							<h:outputLabel value="#{messages.etiqueta_proceso_grupoproximopaso}" >
+								<br/>
+								<p:selectOneMenu value="#{ejecucionBean.proximoPaso.grupoAsignadoId}" disabled="#{ejecucionBean.proximoPaso.grupoAsignadoId != null}" rendered="#{ejecucionBean.proximoPaso.grupoAsignadoId != null}" >
+									<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{ejecucionBean.proximoPaso.jsonPasoData.gruposSeleccionadosMostrar}" var="data" /> 
+								</p:selectOneMenu>
+								<h:panelGroup rendered="#{ejecucionBean.proximoPaso.grupoAsignadoId == null}" >
+									<p:selectCheckboxMenu id="tpasogrupo" widgetVar="tpasogrupo" value="#{ejecucionBean.gruposAsignados}" label="#{messages.etiqueta_proceso_selecciongrupoproximopaso}" filter="true" filterMatchMode="startsWith" styleClass="multiselector" multiple="true" style="width:300px" >
+										<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{ejecucionBean.proximoPaso.jsonPasoData.gruposSeleccionadosMostrar}" var="data" /> 
+									</p:selectCheckboxMenu>
+								</h:panelGroup>
+							</h:outputLabel>
+						</h:panelGroup>
+					</p:panelGrid>
+					
+					<p:panelGrid columns="1" layout="grid" rendered="#{ejecucionBean.data.paso.jsonPasoData.mostrarComentarios and ejecucionBean.permitirEjecutarPaso}" >
+						<h:outputLabel value="#{ejecucionBean.etiquetaComentarios}" style="width:100%" >
+							<br/>
+							<p:inputTextarea id="tpasocomments" rows="6" value="#{ejecucionBean.data.comentario}" maxlength="2000" required="#{ejecucionBean.campoObservacionesRequerido}" />
+							<br/>
+							<p:message display="text" for="tpasocomments" />
+						</h:outputLabel>
+					</p:panelGrid>
+				</h:panelGroup>
+			</p:panel>
+
+			<h:panelGroup id="rownextpaso" rendered="#{ejecucionBean.permitirEjecutarPaso}" >
+				<p:panel header="#{messages.etiqueta_asignacion}: #{messages.etiqueta_finalproceso}" toggleable="true" rendered="#{ejecucionBean.proximoPaso==null and ejecucionBean.data.paso.jsonPasoData.mostrarProximoPaso}" >
+					
+				</p:panel>
+				<p:panel header="#{messages.etiqueta_asignacion}: #{ejecucionBean.proximoPaso.ordenPaso} - #{ejecucionBean.proximoPaso.nombre}" toggleable="true" rendered="#{ejecucionBean.proximoPaso!=null and ejecucionBean.data.paso.jsonPasoData.mostrarProximoPaso}" >
+					<h:outputText id="proximopasoid" value="#{ejecucionBean.proximoPaso.id}" style="display:none" />
+					<h:outputText value="#{messages.mensaje_proceso_estadoparalelo}" rendered="#{ejecucionBean.siguientePasoUnificaParalelo}" />
+				</p:panel>
+			</h:panelGroup>
+		</p:panelGrid>
+		<hr/>
+		<h:panelGroup>
+			<p:commandButton actionListener="#{ejecucionBean.guardar(1)}" value="#{messages.boton_guardar}" rendered="#{ejecucionBean.data.activo and ejecucionBean.procesoSeleccionado gt 0 and !ejecucionBean.data.ultimoPaso and ejecucionBean.permitirEjecutarPaso and (!ejecucionBean.data.paso.jsonPasoData.permitirWS or ejecucionBean.nivelAcceso == 1)}" onclick="if(confirm('#{messages.mensaje_proceso_confirmarguardar}')){PF('dialogoCargando').show();return true;}else{return false;}" disabled="#{ejecucionBean.deshabilitaSiguientePaso}" ajax="false" icon="fa fa-save" />
+			<p:commandButton actionListener="#{ejecucionBean.guardar(2)}" value="#{messages.boton_devolverpaso}" rendered="#{ejecucionBean.data.activo and ejecucionBean.data.paso.ordenPaso > 1 and ejecucionBean.nivelAcceso == 1 and ejecucionBean.permitirEjecutarPaso}" onclick="if(confirm('#{messages.mensaje_proceso_confirmardevolver}')){PF('dialogoCargando').show();return true;}else{return false;}" disabled="#{ejecucionBean.deshabilitaSiguientePaso}" style="float:right" ajax="false" icon="fa fa-repeat" />
+			<p:commandButton actionListener="#{ejecucionBean.borrarProcesoEjecutado}" value="#{messages.boton_borrar}" onclick="if(confirm('#{messages.mensaje_proceso_confirmararborrar}')){PF('dialogoCargando').show();return true;}else{return false;}" rendered="#{ejecucionBean.nivelAcceso == 1 and ejecucionBean.data.id > 0 and ejecucionBean.permitirEjecutarPaso}" style="float:right" ajax="false" icon="fa fa-fw fa-remove" immediate="true" />
+			<p:commandButton actionListener="#{ejecucionBean.reactivateProcesoInstance}" value="#{messages.boton_reactivar}"  onclick="if(confirm('#{messages.mensaje_proceso_confirmarreactivar}')){PF('dialogoCargando').show();return true;}else{return false;}" rendered="#{ejecucionBean.nivelAcceso == 1 and ejecucionBean.data.id > 0 and !ejecucionBean.data.procesoEjecutado.activo and ejecucionBean.permitirEjecutarPaso}" style="float:right" ajax="false" icon="fa fa-edit" />
+		</h:panelGroup>
+	</h:panelGroup>
+</ui:composition>

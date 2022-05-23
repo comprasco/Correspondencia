@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.11.0.final using JasperReports Library version 6.11.0-0c4056ccaa4d25a5a8c45672d2f764ea3498bebb  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report" pageWidth="311" pageHeight="113" columnWidth="311" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Error" uuid="5c171075-3c42-4d5b-93d1-ae4786b07fc6">
+	<property name="ireport.zoom" value="1.4641000000000006"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="79"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="cm"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#2780B3">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#FFBFBF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="detalleFactura" uuid="3ebe2a45-d3c9-4896-b30f-9b19ba18695b">
+		<queryString>
+			<![CDATA[]]>
+		</queryString>
+		<field name="especie" class="java.lang.String"/>
+		<field name="cientifico" class="java.lang.String"/>
+		<field name="cajas" class="java.lang.String"/>
+		<field name="kilos" class="java.lang.String"/>
+		<field name="predio" class="java.lang.String"/>
+		<field name="municipio" class="java.lang.String"/>
+		<field name="registroica" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="logo_60_small" class="java.io.InputStream"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="FECHA_PROCESO" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="anexos" class="java.lang.String"/>
+	<field name="SECUENCIA_PROCESO" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="xREMITENTE" class="java.lang.String"/>
+	<field name="xDESTINATARIO" class="java.lang.String"/>
+	<field name="xASUNTO" class="java.lang.String"/>
+	<detail>
+		<band height="99" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<textField isBlankWhenNull="true">
+				<reportElement x="37" y="7" width="114" height="14" uuid="78abf3f9-749a-45f6-87f2-55600f08b568"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="Arial" size="10" isBold="false" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{FECHA_PROCESO}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="111" y="21" width="40" height="14" uuid="71b98b2b-747b-4bcb-b1d7-3413b555ff57"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{anexos}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="131" y="62" width="176" height="16" uuid="8432a731-a79a-4c4a-82fb-29547ea7f8ce"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{xDESTINATARIO}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="151" y="34" width="156" height="12" uuid="b502173d-1c96-49ef-82e5-c03d9f91a6ad"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{SECUENCIA_PROCESO}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="131" y="46" width="176" height="16" isPrintWhenDetailOverflows="true" uuid="023c77b6-15e9-4728-bd17-319e4486452c">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="Arial" size="10" isBold="false" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{xREMITENTE}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="131" y="78" width="176" height="16" uuid="c94a97e7-c147-447e-98a0-d7c95bfead5e"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{xASUNTO}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="5" y="7" width="32" height="14" uuid="e40ce81b-81b6-4b77-8603-fec88f9cd451">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<text><![CDATA[Fecha]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="73" y="21" width="38" height="14" uuid="6536bd91-a125-4e81-ba26-93a425175ced">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<text><![CDATA[Anexos]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="93" y="46" width="38" height="16" uuid="1a780f86-066e-4915-b83c-88b2900a597c">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<text><![CDATA[Origen]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="93" y="62" width="38" height="16" uuid="742dc762-9b04-4dbf-b13e-1e1ccff8ba85"/>
+				<textElement>
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<text><![CDATA[Destino]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="93" y="78" width="38" height="16" uuid="81a73324-daf3-4e9a-ac1f-d5a95782230c"/>
+				<textElement>
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<text><![CDATA[Asunto]]></text>
+			</staticText>
+			<componentElement>
+				<reportElement stretchType="ContainerHeight" x="151" y="7" width="156" height="27" uuid="f43911d0-1f78-4367-a660-ca250c4842b9"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code39" drawText="false" checksumRequired="false" barHeight="50">
+					<jr:codeExpression><![CDATA[$F{SECUENCIA_PROCESO}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+			<image>
+				<reportElement x="10" y="46" width="80" height="47" uuid="20129bfe-f9f6-4df0-857b-cf4058e4c9b9"/>
+				<imageExpression><![CDATA[$P{logo_60_small}]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+</jasperReport>

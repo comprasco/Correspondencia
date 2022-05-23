@@ -1,0 +1,116 @@
+.ui-selectmanycheckbox label{
+	width: 90%;
+}
+
+label{
+	width: 100%;
+}
+
+.dialogo{
+	top: 100px !important;
+}
+
+.ui-datagrid-content-empty {
+    display: none;
+}
+
+.texto_snr{
+	font-weight:normal;
+}
+
+.multiselector{
+	background: white !important;
+	height: 30px;
+	width: 100%
+}
+
+.multiselector:hover{
+	background: white !important;
+	height: 30px;
+	width: 100%
+}
+
+.ui-state-error, .ui-widget-content .ui-state-error, .ui-widget-header .ui-state-error{
+	border: 1px solid #a8a8a8;
+}
+
+.button_snr {
+	padding: .3em 1em;
+}
+
+.button_snr:hover:not(:disabled) {
+	background: #85b2cb -webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0.6)),to(rgba(255,255,255,0)));
+}
+
+.button_snr:disabled {
+	opacity: .70 !important;
+}
+
+.lupa_snr {
+	background-image: url("../images/find.png") no-repeat top !important;
+    width: 32px; 
+    height: 32px;
+    background-size: contain;
+    border: none;
+}
+
+.ui-autocomplete {
+	width: 100% !important;
+}
+
+.ui-grid {
+	border: 0px !important;
+}
+
+.ui-datepicker {
+	z-index: 100001 !important;
+}
+
+.input[type="text"]{
+	height: 28px;
+}
+
+.checkbox_class{
+	display:initial !important;
+}
+
+.input[type="radio"], .input[type="checkbox"]{
+	margin: 0px 0px 0px 0px;
+}
+
+.image-icon-info{
+	padding-right: 10px;
+	width: 32px;
+	height: 32px;
+	float: right;
+	background-image: url("../images/interrogacion.png");
+	background-repeat-x: no-repeat;
+	background-repeat-y: no-repeat;
+}
+
+a.disabled {
+   pointer-events: none;
+   cursor: default;
+   color: gray;
+}
+
+
+
+/*  Sobreescribe listas ul para quitar margen en autocomplete */ 
+.ui-autocomplete-panel .ui-autocomplete-list{
+	margin: 0 0 0 0 important;
+}
+
+.row_completado{
+	background-color: gainsboro !important;
+	background: gainsboro !important;	
+}
+
+.row_atrasado{
+	background-color: khaki !important;
+	background: khaki !important;	
+}
+
+.file-name{
+	color: black !important;
+}

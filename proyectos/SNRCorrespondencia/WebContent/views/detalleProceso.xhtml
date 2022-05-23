@@ -1,0 +1,861 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets" 
+	xmlns:p="http://primefaces.org/ui" >
+
+<h:outputText value="#{messages.etiqueta_todos}" id="etiqueta_todos" style="display:none" />
+<h:outputText value="#{messages.etiqueta_none}" id="etiqueta_none" style="display:none" />
+<h:outputText value="#{messages.etiqueta_seleccione}" id="etiqueta_seleccione" style="display:none" />
+<h:outputText value="#{messages.etiqueta_seleccionados}" id="etiqueta_seleccionados" style="display:none" />
+
+<p:dialog id="dialogoGrupos" header="#{messages.etiqueta_seleccionegrupos}" widgetVar="dialogoGrupos" modal="true" responsive="true" styleClass="dialogo" >
+	<h:panelGroup rendered="#{procesosBean.paso.jsonPasoData != null}" >
+		<h:outputText value="#{messages.etiqueta_paso_gruposdisponibles}" />
+		<br/>
+		<p:selectManyCheckbox value="#{procesosBean.paso.jsonPasoData.gruposSeleccionados}" layout="pageDirection" disabled="#{procesosBean.procesoTieneEjecuciones}" >
+			<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{procesosBean.gestorSesionBean.grupos}" var="data" />
+		</p:selectManyCheckbox>
+		<br/>
+		<p:commandButton value="#{messages.boton_guardar}" onclick="PF('dialogoGrupos').hide()" icon="fa fa-save" rendered="#{!procesosBean.procesoTieneEjecuciones}" >
+			<p:ajax process=":form1:dialogoGrupos" update=":form1:filaasignaciones" listener="#{procesosBean.listenerCambiarGrupo}" />
+		</p:commandButton>
+	</h:panelGroup>
+</p:dialog>
+
+
+<p:dialog id="dialogoUsuarios" header="#{messages.etiqueta_seleccioneusuarios}" widgetVar="dialogoUsuarios" modal="true" responsive="true" styleClass="dialogo" >
+	<h:panelGroup rendered="#{procesosBean.paso.jsonPasoData != null}">
+		<h:outputText value="#{messages.etiqueta_paso_usuariosdisponibles}" />
+		<br/>
+		<p:selectManyCheckbox value="#{procesosBean.paso.jsonPasoData.usuariosSeleccionados}" layout="pageDirection" disabled="#{procesosBean.procesoTieneEjecuciones}" >
+			<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{procesosBean.gestorSesionBean.usuarios}" var="data" />
+		</p:selectManyCheckbox>
+		<br/>
+		<p:commandButton value="#{messages.boton_guardar}" onclick="PF('dialogoUsuarios').hide()" icon="fa fa-save" rendered="#{!procesosBean.procesoTieneEjecuciones}" >
+			<p:ajax process=":form1:dialogoUsuarios" update=":form1:filaasignaciones" listener="#{procesosBean.listenerCambiarUsuario}" />
+		</p:commandButton>
+	</h:panelGroup>
+</p:dialog>
+
+
+<p:dialog id="dialogsecuenciaprocesoid" header="#{messages.boton_cambiarsecuenciaproceso}" widgetVar="dialogsecuenciaproceso" modal="true" responsive="true" styleClass="dialogo" >
+	<p:panelGrid columns="1" layout="grid" id="rowsecuenciaproceso">
+		<p:commandButton value="#{messages.boton_agregar}" actionListener="#{procesosBean.agregarSecuenciaProceso}" rendered="#{!procesosBean.procesoTieneEjecuciones}" icon="fa fa-plus-square" immediate="true" process="rowsecuenciaproceso" update="rowsecuenciaproceso" />
+
+		<h:dataTable id="tablesecuenciaproceso" value="#{procesosBean.secuenciaProceso}" var="data" rendered="#{not empty procesosBean.secuenciaProceso}">
+			<h:column>
+				<f:facet name="header">
+					<p:outputLabel value="#{messages.etiqueta_secuenciaproceso_value}" />		
+				</f:facet>
+				<p:inputText id="valorSecuencia" value="#{data.valorSecuencia}" maxlength="10" required="true" />
+				<br/>		
+				<p:message display="text" for="valorSecuencia" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<p:outputLabel value="#{messages.etiqueta_secuenciaproceso_autonumerico}" />		
+				</f:facet>
+				<p:selectBooleanCheckbox value="#{data.autoNumerico}" >
+					<p:ajax process=":form1:rowsecuenciaproceso" update=":form1:rowsecuenciaproceso" immediate="true" />
+				</p:selectBooleanCheckbox>		
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<p:outputLabel id="tipofecha" value="#{messages.etiqueta_secuenciaproceso_tipofecha}" />
+					<p:tooltip for="tipofecha" position="bottom" style="width:25%" >
+						<p:outputLabel value="#{messages.etiqueta_secuenciaproceso_tipofecha_tooltip}" />
+					</p:tooltip>
+				</f:facet>
+				<p:selectBooleanCheckbox value="#{data.tipoFecha}" disabled="#{data.autoNumerico}" />		
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<p:outputLabel value="#{messages.etiqueta_secuenciaproceso_reiniciarcada}" />		
+				</f:facet>
+				<p:selectOneMenu value="#{data.reiniciarCada}" maxlength="10" disabled="#{!data.autoNumerico}" >
+					<f:selectItem itemLabel="#{messages.etiqueta_no}" itemValue="0" />
+					<f:selectItem itemLabel="#{messages.etiqueta_ano}" itemValue="1" />
+				</p:selectOneMenu>
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<p:outputLabel value="#{messages.etiqueta_secuenciaproceso_tamano}" />		
+				</f:facet>
+				<p:inputText id="tamanoSecuencia" value="#{data.tamanoSecuencia}" maxlength="10" required="true" disabled="#{!data.autoNumerico}" />		
+				<br/>		
+				<p:message display="text" for="tamanoSecuencia" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<p:outputLabel value="#{messages.etiqueta_secuenciaproceso_activo}" />		
+				</f:facet>
+				<p:selectBooleanCheckbox value="#{data.activo}" />		
+			</h:column>
+			<h:column>
+				<p:commandButton actionListener="#{procesosBean.borrarSecuenciaProceso(data)}" value="#{messages.boton_eliminar}" onclick="if(confirm('#{messages.mensaje_secuenciaproceso_confirmareliminar}')){return true;}else{return false;}" rendered="#{!procesosBean.procesoTieneEjecuciones}" icon="fa fa-fw fa-remove" process=":form1:rowsecuenciaproceso" update=":form1:rowsecuenciaproceso :form1:procesodata" />
+			</h:column>
+		</h:dataTable>
+
+		<h:panelGroup>
+			<p:commandButton value="#{messages.boton_guardar}" actionListener="#{procesosBean.guardarSecuenciaProceso}" rendered="#{!procesosBean.procesoTieneEjecuciones}" icon="fa fa-save" process=":form1:rowsecuenciaproceso" update=":form1:rowsecuenciaproceso :form1:procesodata" />
+			<p:commandButton value="#{messages.boton_cerrar}" actionListener="#{procesosBean.cancelarSecuenciaProceso}" onclick="PF('dialogsecuenciaproceso').hide();" immediate="true" />
+		</h:panelGroup>
+	</p:panelGrid>
+</p:dialog>
+
+<p:commandButton action="#{procesosBean.volverALista}" value="#{messages.boton_regresar}" ajax="false" icon="fa fa-arrow-circle-left" immediate="true" />
+<hr/>
+<p:panel header="#{messages.etiqueta_proceso_titulo}" toggleable="true" >
+	<p:panelGrid columns="2" layout="grid" id="procesodata" >
+		<h:outputLabel value="#{messages.etiqueta_requerido} #{messages.etiqueta_proceso_nombre}"  >
+			<br/>
+			<p:inputText id="nombreproceso" value="#{procesosBean.data.nombre}" maxlength="100" required="true" />
+			<br/>
+			<p:message display="text" for="nombreproceso" />
+		</h:outputLabel>
+
+		<h:outputLabel value="#{messages.etiqueta_proceso_nombreclave}"  >
+			<br/>
+			<p:inputText value="#{procesosBean.data.nombreClave}" maxlength="250" />
+		</h:outputLabel>
+
+		<h:outputLabel value="#{messages.etiqueta_requerido} #{messages.etiqueta_proceso_tipo}" >
+			<br/>
+			<p:selectOneMenu id="tprocesotype" required="true" value="#{procesosBean.data.idTipoProceso}" style="width:100%" >
+				<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{procesosBean.tiposProceso}" var="data" /> 
+			</p:selectOneMenu>
+			<br/>
+			<p:message display="text" for="tprocesotype" />
+		</h:outputLabel>
+		<h:panelGroup></h:panelGroup>
+
+		<h:outputLabel value="#{messages.etiqueta_usuariocreacion}" rendered="#{procesosBean.data.usuarioCreacion != null}" >
+			<br/>
+			<h:outputText value="#{procesosBean.data.usuarioCreacion.nombre}" styleClass="texto_snr" />
+		</h:outputLabel>
+		<h:outputLabel value="#{messages.etiqueta_fechacreacion}" rendered="#{procesosBean.data.fechaCreacion != null}" >
+			<br/>
+			<h:outputText value="#{procesosBean.data.fechaCreacion}" styleClass="texto_snr" >
+				<f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="#{procesosBean.timeZone}" />
+			</h:outputText>
+		</h:outputLabel>
+
+		<h:outputLabel value="#{messages.etiqueta_usuariomodificacion}" rendered="#{procesosBean.data.usuarioModificacion != null}">
+			<br/>
+			<h:outputText value="#{procesosBean.data.usuarioModificacion.nombre}" styleClass="texto_snr" />
+		</h:outputLabel>
+		<h:outputLabel value="#{messages.etiqueta_fechamodificacion}" rendered="#{procesosBean.data.fechaModificacion != null}" >
+			<br/>
+			<h:outputText value="#{procesosBean.data.fechaModificacion}" styleClass="texto_snr" >
+				<f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="#{procesosBean.timeZone}" />
+			</h:outputText>
+		</h:outputLabel>
+
+		<h:outputLabel value="#{messages.etiqueta_proceso_descripcion}" >
+			<br/>
+			<p:inputTextarea id="procesodescripcion" rows="4" cols="33" value="#{procesosBean.data.descripcion}" maxlength="500" />
+		</h:outputLabel>
+
+		<h:outputLabel value="#{messages.etiqueta_proceso_notificacionFinalizacion}"  >
+			<br />
+			<p:selectOneMenu value="#{procesosBean.data.notificacionFinalizacion}" style="width:100%" >
+				<f:selectItem itemValue="#{0}" itemLabel="#{messages.etiqueta_no}" /> 
+				<f:selectItem itemValue="#{1}" itemLabel="#{messages.etiqueta_mail}" /> 
+				<f:selectItem itemValue="#{2}" itemLabel="#{messages.etiqueta_sms}" />
+				<f:selectItem itemValue="#{3}" itemLabel="#{messages.etiqueta_mailysms}" />
+			</p:selectOneMenu>
+		</h:outputLabel>
+
+		<h:outputLabel value="#{messages.etiqueta_proceso_secuenciaproceso}" rendered="#{procesosBean.data.id gt 0}" >
+			<br/>
+			<h:outputText value="#{procesosBean.secuenciaProcesoCadena}" rendered="#{not empty procesosBean.secuenciaProceso}" />
+			<br/>
+			<p:commandButton value="#{messages.boton_cambiarsecuenciaproceso}" onclick="PF('dialogsecuenciaproceso').show();" />
+		</h:outputLabel>
+		<h:outputLabel value="#{messages.etiqueta_proceso_restriccionTiempoEjecutado}"  >
+			<br />
+			<p:selectOneMenu value="#{procesosBean.data.restriccionTiempoEjecutado}" style="width:100%" >
+				<f:selectItem itemValue="#{0}" itemLabel="#{messages.etiqueta_no}" /> 
+				<f:selectItem itemValue="#{1}" itemLabel="#{messages.etiqueta_proceso_restriccionTiempoEjecutado_1}" /> 
+				<f:selectItem itemValue="#{2}" itemLabel="#{messages.etiqueta_proceso_restriccionTiempoEjecutado_2}" /> 
+				<f:selectItem itemValue="#{3}" itemLabel="#{messages.etiqueta_proceso_restriccionTiempoEjecutado_3}" /> 
+				<f:selectItem itemValue="#{4}" itemLabel="#{messages.etiqueta_proceso_restriccionTiempoEjecutado_4}" /> 
+				<f:selectItem itemValue="#{5}" itemLabel="#{messages.etiqueta_proceso_restriccionTiempoEjecutado_5}" /> 
+				<f:selectItem itemValue="#{6}" itemLabel="#{messages.etiqueta_proceso_restriccionTiempoEjecutado_6}" /> 
+				<f:selectItem itemValue="#{7}" itemLabel="#{messages.etiqueta_proceso_restriccionTiempoEjecutado_7}" /> 
+				<f:selectItem itemValue="#{8}" itemLabel="#{messages.etiqueta_proceso_restriccionTiempoEjecutado_8}" /> 
+			</p:selectOneMenu>
+		</h:outputLabel>
+	</p:panelGrid>
+
+	<p:panelGrid columns="1" layout="grid" id="rowprocesoopciones">
+		<h:outputLabel value="#{messages.etiqueta_proceso_activo}" >
+			<br />
+			<p:selectBooleanCheckbox value="#{procesosBean.data.activo}" />
+		</h:outputLabel> 
+		<br/>
+		
+		<h:panelGroup rendered="#{procesosBean.data.id gt 0}">
+			#{messages.etiqueta_proceso_version}: #{procesosBean.data.numeroMayorVersion}.0
+			<br/>
+			<h:outputText value="#{messages.etiqueta_proceso_version_ejecuciones}" rendered="#{procesosBean.procesoTieneEjecuciones}" style="color:red" />
+			<br/>
+			<p:commandButton value="#{messages.boton_version}" actionListener="#{procesosBean.generarNuevaVersion}" icon="fa fa-share-square-o" onclick="if(confirm('#{messages.mensaje_proceso_confirmarversion}')){PF('dialogoCargando').show();return true;}else{return false;}" process="@form" update="@form" />
+		</h:panelGroup>
+	</p:panelGrid>
+	<p:panelGrid columns="1" layout="grid">
+		<h:panelGroup>
+			<p:commandButton actionListener="#{procesosBean.guardar}" value="#{messages.boton_guardar}" onclick="if(confirm('#{messages.mensaje_proceso_confirmarguardar}')){PF('dialogoCargando').show();return true;}else{return false;}" icon="fa fa-save" rendered="#{!procesosBean.procesoTieneEjecuciones}" process="@form" update="@form" />
+			<p:commandButton actionListener="#{procesosBean.eliminaVersionesAnteriores}" value="#{messages.boton_eliminarversiones}" onclick="if(confirm('#{messages.mensaje_proceso_confirmarguardar}')){PF('dialogoCargando').show();return true;}else{return false;}" process="@form" update="@form" rendered="#{procesosBean.data.id gt 0 and procesosBean.data.numeroMayorVersion gt 1}" />
+			<p:commandButton actionListener="#{procesosBean.eliminarVersionActual}" value="#{messages.boton_eliminarversioactual}" onclick="if(confirm('#{messages.mensaje_proceso_confirmarguardar}')){PF('dialogoCargando').show();return true;}else{return false;}" process="@form" update="@form" rendered="#{procesosBean.data.id gt 0 and procesosBean.data.numeroMayorVersion gt 1}" />
+			<p:commandButton actionListener="#{procesosBean.borrarProceso}" value="#{messages.boton_borrarproceso}" onclick="if(confirm('#{messages.mensaje_proceso_confirmarborrarproceso}')){PF('dialogoCargando').show();return true;}else{return false;}" process="@form" update="@form" rendered="#{false and procesosBean.data.id gt 0}" />
+		</h:panelGroup>
+	</p:panelGrid>
+</p:panel>
+
+<p:panelGrid columns="2" layout="grid" id="formdetalles" >
+	<h:panelGroup id="colpasos" rendered="#{procesosBean.data.id != 0}">
+		<p:panel header="#{messages.etiqueta_procesodetalles_pasos}" toggleable="true" >
+			<ui:repeat var="paso" value="#{procesosBean.pasos}">
+				<p:panelGrid columns="2" layout="grid" >
+					<h:panelGroup>
+			  			<p:commandLink actionListener="#{procesosBean.editarPaso(paso)}" value="#{paso.ordenPaso} - #{paso.nombre}" style="font-size:16px;text-decoration:underline;" rendered="#{paso.id!=procesosBean.paso.id}" update=":form1:formdetalles :form1:dialogoGrupos :form1:dialogoUsuarios" onclick="PF('dialogoCargando').show();" />
+			  			<p:commandLink actionListener="#{procesosBean.editarPaso(paso)}" value="#{paso.ordenPaso} - #{paso.nombre}" style="font-size:16px;color:coral;text-decoration:underline;" rendered="#{paso.id==procesosBean.paso.id}" update=":form1:formdetalles :form1:dialogoGrupos :form1:dialogoUsuarios" onclick="PF('dialogoCargando').show();" />
+					</h:panelGroup>
+					<h:panelGroup rendered="#{!procesosBean.procesoTieneEjecuciones}">
+						<p:commandButton value="#{messages.etiqueta_subir}" actionListener="#{procesosBean.moverPaso(paso,1)}" disabled="#{paso.ordenPaso == 1}" icon="fa fa-chevron-up" update=":form1:colpasos" onclick="PF('dialogoCargando').show();" />
+						<p:commandButton value="#{messages.etiqueta_bajar}" actionListener="#{procesosBean.moverPaso(paso,2)}" disabled="#{paso.ordenPaso==procesosBean.pasos.size()}" icon="fa fa-chevron-down" update=":form1:colpasos" onclick="PF('dialogoCargando').show();" />
+						<p:commandButton value="#{messages.boton_eliminar}" actionListener="#{procesosBean.eliminarPaso(paso)}" onclick="if(confirm('#{messages.mensaje_paso_confirmareliminar}')){PF('dialogoCargando').show();return true;}else{return false;}" icon="fa fa-remove" update="@form" />
+					</h:panelGroup>
+				</p:panelGrid>
+			</ui:repeat>
+		</p:panel>
+	</h:panelGroup>
+	
+	<h:panelGroup id="pasodetalles" >
+		<p:panel header="#{messages.etiqueta_paso_titulo}" toggleable="true" rendered="#{procesosBean.data.id gt 0}" >
+			<p:commandButton value="#{messages.boton_agregarpaso}" actionListener="#{procesosBean.agregarPaso}" update="pasodetalles :form1:dialogoGrupos :form1:dialogoUsuarios" rendered="#{procesosBean.paso==null and procesosBean.data.id gt 0 and !procesosBean.procesoTieneEjecuciones}" />
+
+			<p:panelGrid columns="1" layout="grid" id="rowpaso1" rendered="#{procesosBean.paso!=null}" >
+				<h:outputLabel value="#{messages.etiqueta_requerido} #{messages.etiqueta_paso_nombre}"  >
+					<br/>
+					<p:inputText id="pasonombre" value="#{procesosBean.paso.nombre}" maxlength="50" required="true" disabled="#{procesosBean.procesoTieneEjecuciones}" />
+					<br/>
+					<p:message display="text" for="pasonombre" />
+				</h:outputLabel>
+	
+				<h:outputLabel value="#{messages.etiqueta_paso_descripcion}"  >
+					<br/>
+					<p:inputTextarea id="pasodescripcion" rows="3" cols="33" value="#{procesosBean.paso.descripcion}" maxlength="500" disabled="#{procesosBean.procesoTieneEjecuciones}" />
+				</h:outputLabel>
+	
+				<h:outputLabel value="#{messages.etiqueta_paso_permitirws}" rendered="#{procesosBean.paso.ordenPaso gt 1}"  >
+					<br/>
+					<h:selectBooleanCheckbox value="#{procesosBean.paso.jsonPasoData.permitirWS}" disabled="#{procesosBean.procesoTieneEjecuciones}" />
+				</h:outputLabel>
+	
+				<h:outputLabel value="#{messages.etiqueta_paso_permitirparalelo}" rendered="#{procesosBean.paso.ordenPaso gt 1}"  >
+					<br/>
+					<h:selectBooleanCheckbox value="#{procesosBean.paso.jsonPasoData.permitirParalelo}" disabled="#{procesosBean.procesoTieneEjecuciones}" />
+				</h:outputLabel>
+
+				<h:outputLabel value="#{messages.etiqueta_paso_unificarpasosproceso}" rendered="#{procesosBean.paso.ordenPaso gt 1}"  >
+					<br/>
+					<h:selectBooleanCheckbox value="#{procesosBean.paso.jsonPasoData.unificarPasosProceso}" disabled="#{procesosBean.procesoTieneEjecuciones}" />
+				</h:outputLabel>
+
+				<h:panelGroup id="filaasignaciones" >
+					<h:outputLabel value="#{messages.etiqueta_paso_asignadoa}"  />
+					<p:panelGrid columns="1" layout="grid" >
+						<p:commandButton value="Usuarios" onclick="PF('dialogoUsuarios').show();" disabled="#{procesosBean.paso.jsonPasoData.asignarUsuarioEspecial gt 0}" process="@this" rendered="false" />
+	
+						<p:selectOneMenu id="tpasouser" value="#{procesosBean.paso.usuarioAsignadoId}" disabled="#{procesosBean.procesoTieneEjecuciones or procesosBean.paso.jsonPasoData.asignarUsuarioEspecial gt 0}"  rendered="false" >
+							<f:selectItem itemValue="#{null}" itemLabel="#{messages.etiqueta_seleccioneusuario}" /> 
+							<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{procesosBean.paso.jsonPasoData.usuariosSeleccionadosMostrar}" var="data" /> 
+							<p:ajax update="filaasignaciones" listener="#{procesosBean.validarCambiarUsuarioAsignado}" /> 
+						</p:selectOneMenu>
+	
+						<h:outputLabel value="#{messages.etiqueta_paso_ocultarusuariosenformulario}" rendered="#{procesosBean.paso.ordenPaso gt 1}">
+							<br/>
+							<h:selectBooleanCheckbox value="#{procesosBean.paso.jsonPasoData.ocultarSeleccionUsuarios}" disabled="#{procesosBean.procesoTieneEjecuciones}" />
+						</h:outputLabel>
+		
+						<p:commandButton value="Grupos" onclick="PF('dialogoGrupos').show();" disabled="#{procesosBean.paso.jsonPasoData.asignarUsuarioEspecial gt 0}" process="@this" />
+						
+						<p:selectOneMenu id="tpasogroup" value="#{procesosBean.paso.grupoAsignadoId}" disabled="#{procesosBean.procesoTieneEjecuciones or procesosBean.paso.jsonPasoData.asignarUsuarioEspecial gt 0}"  >
+							<f:selectItem itemValue="#{null}" itemLabel="#{messages.etiqueta_seleccionegrupo}" /> 
+							<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{procesosBean.paso.jsonPasoData.gruposSeleccionadosMostrar}" var="data" />
+							<p:ajax update="filaasignaciones" listener="#{procesosBean.validarCambiarGrupoAsignado}" />
+						</p:selectOneMenu>
+						
+						<h:outputLabel value="#{messages.etiqueta_paso_ocultargruposenformulario}" rendered="#{procesosBean.paso.ordenPaso gt 1}" >
+							<br/>
+							<h:selectBooleanCheckbox value="#{procesosBean.paso.jsonPasoData.ocultarSeleccionGrupos}" disabled="#{procesosBean.procesoTieneEjecuciones}" />
+						</h:outputLabel>
+						<h:outputLabel value="#{messages.etiqueta_paso_mostrarusuariosgrupos}" rendered="#{procesosBean.paso.ordenPaso gt 1}" >
+							<br/>
+							<h:selectBooleanCheckbox value="#{procesosBean.paso.jsonPasoData.mostrarUsuariosGrupos}" disabled="#{procesosBean.procesoTieneEjecuciones}" />
+						</h:outputLabel>
+						<h:outputLabel value="#{messages.etiqueta_paso_limitargrupossegunusuarioactual}" rendered="#{procesosBean.paso.ordenPaso gt 1}" >
+							<br/>
+							<h:selectBooleanCheckbox value="#{procesosBean.paso.jsonPasoData.limitarGruposSegunUsuarioActual}" disabled="#{procesosBean.procesoTieneEjecuciones}" />
+						</h:outputLabel>
+						<h:outputLabel value="#{messages.etiqueta_paso_ocultarusuarioactualsiguientepaso}" rendered="#{procesosBean.paso.ordenPaso gt 1}" >
+							<br/>
+							<h:selectBooleanCheckbox value="#{procesosBean.paso.jsonPasoData.ocultarUsuarioActualSiguientePaso}" disabled="#{procesosBean.procesoTieneEjecuciones}" />
+						</h:outputLabel>
+					</p:panelGrid>
+	
+					<hr/>
+	
+					<h:outputLabel value="#{messages.etiqueta_paso_limitarusuarioanterior}" rendered="#{procesosBean.paso.ordenPaso gt 1}"  >
+						<br/>
+						<p:selectOneMenu value="#{procesosBean.paso.jsonPasoData.asignarUsuarioEspecial}" disabled="#{procesosBean.procesoTieneEjecuciones}" style="width:100%" >
+							<f:selectItem itemValue="#{0}" itemLabel="#{messages.etiqueta_no}" /> 
+							<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{procesosBean.pasos}" var="data" />
+							<p:ajax update="filaasignaciones" />
+						</p:selectOneMenu>
+					</h:outputLabel>
+				</h:panelGroup>
+	
+				<h:outputLabel value="#{messages.etiqueta_paso_cantidadcolumnas}" >
+					<br/>
+					<p:selectOneMenu value="#{procesosBean.paso.jsonPasoData.columnasFormulario}" disabled="#{procesosBean.procesoTieneEjecuciones}"  >
+						<f:selectItem itemLabel="1" itemValue="#{1}" />
+						<f:selectItem itemLabel="2" itemValue="#{2}" />
+						<f:selectItem itemLabel="3" itemValue="#{3}" />
+					</p:selectOneMenu>
+				</h:outputLabel>
+
+				<h:outputLabel value="#{messages.etiqueta_paso_mostrarcampocomentarios}" >
+					<br/>
+					<h:selectBooleanCheckbox value="#{procesosBean.paso.jsonPasoData.mostrarComentarios}" disabled="#{procesosBean.procesoTieneEjecuciones}" />
+				</h:outputLabel>
+	
+				<h:outputLabel value="#{messages.etiqueta_paso_mostrarproximopaso}" >
+					<br/>
+					<h:selectBooleanCheckbox value="#{procesosBean.paso.jsonPasoData.mostrarProximoPaso}" disabled="#{procesosBean.procesoTieneEjecuciones}" />
+				</h:outputLabel>
+	
+				<h:outputLabel value="#{messages.etiqueta_requerido} #{messages.etiqueta_paso_duracion}"  >
+					<br/>
+					<p:inputText id="tpasoduration" value="#{procesosBean.paso.duracion}" onblur="if(jQuery(this).val()==''){jQuery(this).val('0')}" label="#{messages.etiqueta_paso_duracion}" maxlength="5" onkeypress="validateInputNumber()" disabled="#{procesosBean.procesoTieneEjecuciones}" />
+					<p:selectOneMenu value="#{procesosBean.paso.duracionPeriodo}" disabled="#{procesosBean.procesoTieneEjecuciones}" style="width:100%" >
+						<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{procesosBean.tiposDuracion}" var="data" /> 
+					</p:selectOneMenu>
+					<br/>
+					<p:message display="text" for="tpasoduration" />
+				</h:outputLabel>
+	
+				<h:panelGroup id="rowworkinghours">
+					<h:outputLabel value="#{messages.etiqueta_paso_rangohoras}"  >
+						<br/>
+						<h:selectBooleanCheckbox value="#{procesosBean.mostrarHorasLaborales}" disabled="#{procesosBean.procesoTieneEjecuciones}" >
+							<f:ajax render="rowworkinghours" />
+						</h:selectBooleanCheckbox>     
+						<br/>
+						<h:panelGroup rendered="#{procesosBean.mostrarHorasLaborales}">
+							<p:selectOneMenu value="#{procesosBean.horasLaborales1}" disabled="#{procesosBean.procesoTieneEjecuciones}" >
+								<f:selectItems value="#{procesosBean.listaHorasLaborales}" /> 
+							</p:selectOneMenu>
+							 - 
+							<p:selectOneMenu value="#{procesosBean.horasLaborales2}" disabled="#{procesosBean.procesoTieneEjecuciones}" >
+								<f:selectItems value="#{procesosBean.listaHorasLaborales}" /> 
+							</p:selectOneMenu>
+						</h:panelGroup>
+					</h:outputLabel>
+				</h:panelGroup>
+	
+				<h:outputLabel value="#{messages.etiqueta_paso_notificacionasignacion}"  >
+					<br/>
+					<p:selectOneMenu value="#{procesosBean.paso.enviarEmail}" disabled="#{procesosBean.procesoTieneEjecuciones}" style="width:100%" >
+						<f:selectItem itemValue="#{0}" itemLabel="#{messages.etiqueta_no}" /> 
+						<f:selectItem itemValue="#{1}" itemLabel="#{messages.etiqueta_mail}" /> 
+						<f:selectItem itemValue="#{2}" itemLabel="#{messages.etiqueta_sms}" />
+						<f:selectItem itemValue="#{3}" itemLabel="#{messages.etiqueta_mailysms}" />
+					</p:selectOneMenu>
+				</h:outputLabel>
+	
+				<h:outputLabel value="#{messages.etiqueta_paso_notificacionejecucion}"  >
+					<br/>
+					<p:selectOneMenu value="#{procesosBean.paso.avisoEjecucion}" disabled="#{procesosBean.procesoTieneEjecuciones}" style="width:100%" >
+						<f:selectItem itemValue="#{0}" itemLabel="#{messages.etiqueta_no}" /> 
+						<f:selectItem itemValue="#{1}" itemLabel="#{messages.etiqueta_mail}" /> 
+						<f:selectItem itemValue="#{2}" itemLabel="#{messages.etiqueta_sms}" />
+						<f:selectItem itemValue="#{3}" itemLabel="#{messages.etiqueta_mailysms}" />
+					</p:selectOneMenu>
+				</h:outputLabel> 
+	
+				<h:outputLabel value="#{messages.etiqueta_notificacionatrasada}"  >
+					<br/>
+					<p:selectOneMenu value="#{procesosBean.paso.avisoVencimiento}" disabled="#{procesosBean.procesoTieneEjecuciones}" style="width:100%" >
+						<f:selectItem itemValue="#{0}" itemLabel="#{messages.etiqueta_no}" /> 
+						<f:selectItem itemValue="#{1}" itemLabel="#{messages.etiqueta_mail}" /> 
+						<f:selectItem itemValue="#{2}" itemLabel="#{messages.etiqueta_sms}" />
+						<f:selectItem itemValue="#{3}" itemLabel="#{messages.etiqueta_mailysms}" />
+					</p:selectOneMenu>
+				</h:outputLabel> 
+	
+				<h:outputLabel value="#{messages.etiqueta_paso_notificacionrecordatorios}"  >
+					<br/>
+					<p:selectOneMenu value="#{procesosBean.paso.enviarRecordatorio}" disabled="#{procesosBean.procesoTieneEjecuciones}" style="width:100%" >
+						<f:selectItem itemValue="#{0}" itemLabel="#{messages.etiqueta_no}" /> 
+						<f:selectItem itemValue="#{1}" itemLabel="#{messages.etiqueta_mail}" /> 
+						<f:selectItem itemValue="#{2}" itemLabel="#{messages.etiqueta_sms}" />
+						<f:selectItem itemValue="#{3}" itemLabel="#{messages.etiqueta_mailysms}" />
+						<f:ajax execute="@this" render="rowsendremindertime" /> 
+					</p:selectOneMenu> 
+				</h:outputLabel>
+	
+				<h:panelGroup id="rowsendremindertime" >
+					<h:outputLabel value="#{messages.etiqueta_paso_notificacionrecordatoscada}" rendered="#{procesosBean.paso.enviarRecordatorio gt 0}"  >
+						<br/>
+						<p:inputText id="treminderfrequency" value="#{procesosBean.paso.frecuenciaRecordatorio}" onblur="if(jQuery(this).val()==''){jQuery(this).val('0')}" maxlength="2" onkeypress="validateInputNumber()" />
+						<p:selectOneMenu value="#{procesosBean.paso.frecuenciaRecordatorioPeriodo}" disabled="#{procesosBean.procesoTieneEjecuciones}" style="width:100%" >
+							<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{procesosBean.tiposDuracion}" var="data" /> 
+						</p:selectOneMenu>
+					</h:outputLabel>
+				</h:panelGroup>
+				<h:panelGroup>
+					<p:commandButton value="#{messages.boton_guardarpaso}" actionListener="#{procesosBean.guardarPaso}" onclick="PF('dialogoCargando').show();" rendered="#{!procesosBean.procesoTieneEjecuciones}" process="rowpaso1" update=":form1:formdetalles" icon="fa fa-save" />
+					<p:commandButton actionListener="#{procesosBean.cancelarAgregarPaso}" value="#{messages.boton_cancelarpaso}" onclick="PF('dialogoCargando').show();" immediate="true" update=":form1:formdetalles" />
+				</h:panelGroup>
+			</p:panelGrid>
+		</p:panel>
+		
+		<h:panelGroup id="filaEntradaId" >
+			<p:panel header="#{messages.etiqueta_entrada_titulo}" toggleable="true" rendered="#{procesosBean.paso!=null and procesosBean.paso.id >0}" >
+				<p:commandButton value="#{messages.boton_agregar}" actionListener="#{procesosBean.agregarEntrada}" rendered="#{procesosBean.entrada==null and !procesosBean.procesoTieneEjecuciones}" update=":form1:filaEntradaId" icon="fa fa-plus-square" />
+				<h:panelGroup id="rowaddentrada" rendered="#{procesosBean.entrada!=null}">
+					<hr/>
+					<p:panelGrid columns="1" layout="grid">
+						<h:outputLabel value="#{messages.etiqueta_requerido} #{messages.etiqueta_entrada_entradanombre}"  >
+							<br/>
+							<p:inputText id="tentradanombre" value="#{procesosBean.entrada.nombreEntrada}" maxlength="100" required="true" >
+								<p:ajax process="@this" />
+							</p:inputText>
+							<br/>
+							<p:message display="text" for="tentradanombre" />
+						</h:outputLabel>
+	
+						<h:outputLabel value="#{messages.etiqueta_requerido} #{messages.etiqueta_entrada_tipo}" >
+							<br/>
+							<p:selectOneMenu id="tentradatype" value="#{procesosBean.entrada.tipoEntrada}" style="width:100%" >
+								<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{procesosBean.tiposEntrada}" var="data" /> 
+								<p:ajax update=":form1:rowaddentrada :form1:rowaddentradaopciones :form1:opcionessecuencia" listener="#{procesosBean.cambiarTipoEntrada}" />
+							</p:selectOneMenu>
+							<br/>
+							<p:message display="text" for="tentradatype" />
+						</h:outputLabel>
+
+						<h:panelGroup rendered="#{procesosBean.entrada.tipoEntrada=='DATE'}" >
+							<p:commandButton value="#{messages.etiqueta_entrada_agregarrestriccion}" actionListener="#{procesosBean.agregarRestriccionEntrada(data)}" process=":form1:rowaddentrada" update=":form1:rowaddentrada" />
+							<ui:repeat value="#{procesosBean.restriccionesEntrada}" var="restriccion" >
+								<p:panelGrid columns="2" layout="grid">
+									<h:panelGroup>
+										<h:outputLabel value="#{messages.etiqueta_entrada_restriccion}" >
+											<br/>
+											<p:selectOneMenu value="#{restriccion.tipo}" >
+												<f:selectItems value="#{procesosBean.tiposRestriccionEntradas}" /> 
+											</p:selectOneMenu>
+										</h:outputLabel>
+										<h:outputLabel value="#{messages.etiqueta_entrada_restriccionvalor}">
+											<br/>
+											<p:selectOneMenu value="#{restriccion.valor}"  >
+												<f:selectItems value="#{procesosBean.tiposRestriccionValores}" /> 
+											</p:selectOneMenu>
+										</h:outputLabel>
+									</h:panelGroup>
+									<h:panelGroup>
+										<br/>
+										<p:commandButton value="#{messages.boton_borrar}" actionListener="#{procesosBean.eliminarRestriccionEntrada(restriccion)}" process=":form1:rowaddentrada" update=":form1:rowaddentrada" />
+									</h:panelGroup>
+								</p:panelGrid>
+							</ui:repeat>
+						</h:panelGroup>
+
+						<h:outputLabel value="#{messages.etiqueta_entrada_longitud}"  rendered="#{procesosBean.isTipoEntradaLongitud(procesosBean.entrada)}" >
+							<br/>
+							<p:inputText id="longituddato" value="#{procesosBean.entrada.longitud}" maxlength="4" onkeypress="validateInputNumber()" >
+								<p:ajax process="@this" />
+							</p:inputText>
+							<br/>
+							<p:message display="text" for="longituddato" />
+						</h:outputLabel>
+
+						<h:panelGroup rendered="#{procesosBean.entrada.tipoEntrada=='FILE'}">
+							<h:outputLabel value="#{messages.etiqueta_entrada_repositorio}"  >
+								<br/>
+								<p:selectOneMenu value="#{procesosBean.entrada.archivoTipoRepositorio}" style="width:100%" >
+									<f:selectItem itemValue="#{1}" itemLabel="#{messages.etiqueta_entrada_repositorio_temporal}" />
+									<f:selectItem itemValue="#{2}" itemLabel="#{messages.etiqueta_entrada_repositorio_final}" />
+									<p:ajax process="@this" />
+								</p:selectOneMenu>
+							</h:outputLabel>
+						</h:panelGroup>
+
+						<h:outputLabel value="#{messages.etiqueta_entrada_requerida}" rendered="#{procesosBean.entrada.tipoEntrada!='SEQUENCE'}" >
+							<br/>
+							<h:selectBooleanCheckbox value="#{procesosBean.entrada.requerido}" >
+								<f:ajax execute="@this" />
+							</h:selectBooleanCheckbox>
+						</h:outputLabel> 
+					
+						<h:outputLabel value="#{messages.etiqueta_entrada_oculta}" >
+							<br/>
+							<h:selectBooleanCheckbox value="#{procesosBean.entrada.entradaOculta}" > 
+								<f:ajax execute="@this" />
+							</h:selectBooleanCheckbox>
+						</h:outputLabel>
+	
+						<h:outputLabel value="#{messages.etiqueta_entrada_incluirbandeja}" >
+							<br/>
+							<h:selectBooleanCheckbox value="#{procesosBean.entrada.incluirBandeja}" > 
+								<f:ajax execute="@this" />
+							</h:selectBooleanCheckbox>
+						</h:outputLabel>
+	
+						<h:outputLabel value="#{messages.etiqueta_entrada_enviarcheckin}" rendered="#{procesosBean.isEntradaEnvioCheckin(procesosBean.entrada)}" >
+							<br/>
+							<h:selectBooleanCheckbox value="#{procesosBean.entrada.enviarCheckin}" >
+								<f:ajax execute="@this" />
+							</h:selectBooleanCheckbox>
+						</h:outputLabel> 
+
+						<h:outputLabel value="#{messages.etiqueta_entrada_nombre}"  >
+							<span class="image-icon-info" title="#{messages.etiqueta_entrada_nombre_info}" /> 
+							<br/>
+							<p:inputText value="#{procesosBean.entrada.nombre}" maxlength="300" >
+								<p:ajax process="@this" />
+							</p:inputText>
+						</h:outputLabel>
+	
+						<h:outputLabel value="#{messages.etiqueta_entrada_copiarentrada}"  >
+							<br/>
+							<p:selectOneMenu value="#{procesosBean.entrada.idEntradaCopiar}" style="width:100%" >
+								<f:selectItem itemValue="#{null}" itemLabel="#{messages.etiqueta_no}" />
+								<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombreEntrada}" value="#{procesosBean.entradasTodasFormato}" var="data" /> 
+							</p:selectOneMenu>
+						</h:outputLabel>
+
+						<h:outputLabel value="#{messages.etiqueta_entrada_anidada}" >
+							<br/>
+							<h:selectBooleanCheckbox value="#{procesosBean.entrada.entradaAnidada}" >
+								<f:ajax listener="#{procesosBean.actualizaOpcionesEntradaAnidada(true)}" render=":form1:rowaddentradaopciones :form1:rowaddentradanestedopciones" />
+							</h:selectBooleanCheckbox> 
+						</h:outputLabel>
+					</p:panelGrid>
+					
+					<p:panelGrid columns="1" layout="grid" id="rowaddentradaopciones" >
+						<h:panelGroup rendered="#{procesosBean.entrada.tipoEntrada=='SECUENCIA_GLOBAL'}">
+							<hr/>
+							<h:outputLabel value="#{messages.etiqueta_CAMPO_SECUENCIA_GLOBAL}"  >
+								<br/>
+								<p:selectOneMenu value="#{procesosBean.entrada.parametroOpcionesId}" style="width:100%" >
+									<f:selectItems itemValue="#{item.id}" itemLabel="#{item.nombre}" value="#{procesosBean.secuenciasGlobales}" var="item" />
+									<p:ajax process="rowaddentradaopciones" update="rowaddentradaopciones" />
+								</p:selectOneMenu>
+								<br/>
+								<h:outputText value="#{procesosBean.obtenerValorSecuenciaGlobal(procesosBean.entrada.parametroOpcionesId)}" />
+							</h:outputLabel>
+						</h:panelGroup>
+
+
+						<h:panelGroup rendered="#{procesosBean.entrada.tipoEntrada=='LISTA_PREDEFINIDA' || procesosBean.entrada.tipoEntrada=='RADIO_LISTA_PREDEFINIDA'}">
+							<hr/>
+							<h:outputLabel value="#{messages.etiqueta_entrada_listapredefinida}"  >
+								<br/>
+								<p:selectOneMenu value="#{procesosBean.entrada.parametroOpcionesId}" style="width:100%" >
+									<f:selectItems itemValue="#{item.id}" itemLabel="#{item.nombre}" value="#{procesosBean.listaPredefinida}" var="item" />
+									<p:ajax process="rowaddentradaopciones" update="rowaddentradaopciones" />
+								</p:selectOneMenu>
+							</h:outputLabel>
+						</h:panelGroup>
+
+						<h:panelGroup rendered="#{(procesosBean.entrada.tipoEntrada=='SELECT' or procesosBean.entrada.tipoEntrada=='RADIO' or procesosBean.entrada.tipoEntrada=='CHECKBOX') and !procesosBean.entrada.entradaAnidada}">
+							<p:panelGrid columns="1" layout="grid" >
+								<hr/>
+		
+								<h:outputLabel value="#{messages.etiqueta_requerido} #{messages.etiqueta_entrada_opciones}">
+									<br/>
+									<p:commandButton value="#{messages.boton_agregar}" actionListener="#{procesosBean.agregarOpcionEntrada}" rendered="#{!procesosBean.procesoTieneEjecuciones}" process="rowaddentradaopciones" update="rowaddentradaopciones" />
+								</h:outputLabel>
+		
+								<h:outputLabel value=" #{messages.etiqueta_entrada_clavevalor}" >
+									<br/>
+									<p:selectBooleanCheckbox value="#{procesosBean.entrada.entradaClaveValor}" >
+										<p:ajax process="rowaddentradaopciones" update="rowaddentradaopciones" />
+									</p:selectBooleanCheckbox>
+								</h:outputLabel>
+		
+								<ui:repeat var="opcionentrada" value="#{procesosBean.entrada.opcionesJson}" varStatus="varstatus" >
+									<h:panelGroup rendered="#{opcionentrada.activo}">
+										<h:outputLabel value="#{messages.etiqueta_entrada_marcarnulo}" rendered="#{varstatus.index == 0 and procesosBean.entrada.tipoEntrada=='SELECT'}">
+											<br/>
+											<h:selectBooleanCheckbox value="#{opcionentrada.valorNulo}"  /> 
+										</h:outputLabel>
+		
+										<p:panelGrid columns="2" layout="grid">
+											<h:panelGroup>
+												<p:inputText value="#{opcionentrada.clave}" rendered="#{procesosBean.entrada.entradaClaveValor}" />
+												<p:inputText value="#{opcionentrada.nombre}" />
+											</h:panelGroup>
+											<p:commandButton value="#{messages.boton_eliminar}" actionListener="#{procesosBean.removerOpcionEntrada(opcionentrada)}" rendered="#{!procesosBean.procesoTieneEjecuciones}" process=":form1:rowaddentradaopciones" update=":form1:rowaddentradaopciones" />
+										</p:panelGrid>
+									</h:panelGroup>
+								</ui:repeat>
+								<hr/>
+							</p:panelGrid>
+						</h:panelGroup>
+					</p:panelGrid>
+	
+					<p:panelGrid columns="1" layout="grid" id="rowaddentradanestedopciones" >
+						<h:panelGroup rendered="#{procesosBean.entrada.entradaAnidada}">
+							<p:panelGrid columns="1" layout="grid" >
+								<h:outputLabel value="#{messages.etiqueta_requerido} #{messages.etiqueta_entrada_anidadapadre}"  >
+									<br/>
+									<p:selectOneMenu value="#{procesosBean.entrada.entradaAnidadaId}" hideNoSelectionOption="true" style="width:100%" >
+										<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombreEntrada}" value="#{procesosBean.entradasParaEntradaAnidada}" var="data" /> 
+										<p:ajax update=":form1:rowaddentradanestedopciones" listener="#{procesosBean.actualizaOpcionesEntradaAnidada(true)}" />
+									</p:selectOneMenu>
+								</h:outputLabel>
+	
+								<ui:repeat value="#{procesosBean.opcionesEntradasAnidadas}" var="data" >
+									<h:panelGroup>
+										<h:outputLabel>
+											<h:selectBooleanCheckbox value="#{data.selected}" >
+												<f:ajax listener="#{procesosBean.actualizarRequeridosOpcionesEntradasAnidadas(data)}" execute=":form1:rowaddentradanestedopciones" render=":form1:rowaddentradanestedopciones" />
+											</h:selectBooleanCheckbox>#{data.text}
+										</h:outputLabel>
+										
+										<br/>
+		
+										<h:panelGroup rendered="#{data.selected and procesosBean.validarOpcionesEntrada(procesosBean.entrada)}" >
+		
+											<h:outputLabel value="#{messages.etiqueta_requerido} #{messages.etiqueta_entrada_opciones}">
+												<br/>
+												<p:commandButton value="#{messages.boton_agregar}" actionListener="#{procesosBean.agregarOpcionEntrada(data)}" rendered="#{!procesosBean.procesoTieneEjecuciones}" process=":form1:rowaddentradanestedopciones" update=":form1:rowaddentradanestedopciones" />
+											</h:outputLabel>
+		
+											<br/>
+					
+											<h:outputLabel value=" #{messages.etiqueta_entrada_clavevalor}" >
+												<br/>
+												<h:selectBooleanCheckbox value="#{data.keyvalueentrada}" >
+													<f:ajax execute=":form1:rowaddentradanestedopciones" render=":form1:rowaddentradanestedopciones" />
+												</h:selectBooleanCheckbox>
+											</h:outputLabel>
+										</h:panelGroup>
+									</h:panelGroup>
+									
+									<br/>
+		
+									<h:panelGroup rendered="#{data.selected and procesosBean.validarOpcionesEntrada(procesosBean.entrada)}">
+										<ui:repeat var="opcionentrada" value="#{procesosBean.entrada.opcionesJson}" >
+											<h:panelGroup rendered="#{opcionentrada.opcionPadreId == data.id and opcionentrada.activo}">
+												<h:panelGroup rendered="#{procesosBean.entrada.tipoEntrada=='SELECT' and procesosBean.validarIndiceOpcionesAnidadasEntradas(data.id, opcionentrada.clave) == 0}">
+													<br/>
+													<h:selectBooleanCheckbox value="#{optionentrada.value.valorNulo}" /> #{messages.etiqueta_entrada_marcarnulo}
+												</h:panelGroup>
+			
+												<h:inputText value="#{opcionentrada.clave}" rendered="#{data.keyvalueentrada}" />
+												<h:inputText value="#{opcionentrada.nombre}" />
+												<p:commandButton value="#{messages.boton_eliminar}" actionListener="#{procesosBean.removerOpcionEntrada(opcionentrada)}" rendered="#{!procesosBean.procesoTieneEjecuciones}" process=":form1:rowaddentradanestedopciones" update=":form1:rowaddentradanestedopciones" />
+											</h:panelGroup>
+										</ui:repeat>
+									</h:panelGroup>
+									<hr />
+								</ui:repeat>
+							</p:panelGrid>
+						</h:panelGroup>
+					</p:panelGrid>
+	
+					<h:panelGroup id="opcionessecuencia">
+						<p:panelGrid columns="1" layout="grid" id="rowsequence" rendered="#{procesosBean.entrada.tipoEntrada=='SEQUENCE'}">
+							<p:commandButton value="#{messages.boton_agregar}" actionListener="#{procesosBean.agregarSecuenciaEntrada}" rendered="#{!procesosBean.procesoTieneEjecuciones}" process=":form1:rowsequence" update=":form1:rowsequence" icon="fa fa-plus-square" />
+							<h:dataTable value="#{procesosBean.secuenciaentrada}" var="data" rendered="#{not empty procesosBean.secuenciaentrada}">
+								<h:column>
+									<f:facet name="header">
+										<h:outputText value="#{messages.etiqueta_secuenciaentrada_value}" />		
+									</f:facet>
+									<h:inputText id="valorsecuencia" value="#{data.valorSecuencia}" maxlength="10" required="true" />
+									<br/>		
+									<p:message display="text" for="valorsecuencia" />
+								</h:column>
+								<h:column>
+									<f:facet name="header">
+										<p:outputLabel value="#{messages.etiqueta_secuenciaentrada_autonumerico}" />		
+									</f:facet>
+									<p:selectBooleanCheckbox value="#{data.autonumerico}" >
+										<p:ajax process=":form1:opcionessecuencia" update=":form1:opcionessecuencia" immediate="true" />
+									</p:selectBooleanCheckbox>		
+								</h:column>
+								<h:column>
+									<f:facet name="header">
+										<p:outputLabel id="tipofecha" value="#{messages.etiqueta_secuenciaproceso_tipofecha}" />
+										<p:tooltip for="tipofecha" position="bottom" style="width:25%" >
+											<p:outputLabel value="#{messages.etiqueta_secuenciaproceso_tipofecha_tooltip}" />
+										</p:tooltip>
+									</f:facet>
+									<p:selectBooleanCheckbox value="#{data.tipoFecha}" disabled="#{data.autonumerico}" />		
+								</h:column>
+								<h:column>
+									<f:facet name="header">
+										<p:outputLabel value="#{messages.etiqueta_secuenciaproceso_reiniciarcada}" />		
+									</f:facet>
+									<p:selectOneMenu value="#{data.reiniciarCada}" maxlength="10" disabled="#{!data.autonumerico}" >
+										<f:selectItem itemLabel="#{messages.etiqueta_no}" itemValue="0" />
+										<f:selectItem itemLabel="#{messages.etiqueta_ano}" itemValue="1" />
+									</p:selectOneMenu>
+								</h:column>
+								<h:column>
+									<f:facet name="header">
+										<h:outputText value="#{messages.etiqueta_secuenciaentrada_tamano}" />		
+									</f:facet>
+									<h:inputText id="tamanosecuencia" value="#{data.tamanoSecuencia}" maxlength="10" required="true" disabled="#{!data.autonumerico}" />		
+									<br/>		
+									<p:message display="text" for="tamanosecuencia" />
+								</h:column>
+								<h:column>
+									<f:facet name="header">
+										<h:outputText value="#{messages.etiqueta_secuenciaentrada_activo}" />		
+									</f:facet>
+									<h:selectBooleanCheckbox value="#{data.activo}" />		
+								</h:column>
+								<h:column>
+									<p:commandButton value="#{messages.boton_eliminar}" actionListener="#{procesosBean.eliminarSecuenciaEntrada(data)}" onclick="if(confirm('#{messages.mensaje_secuenciaentrada_confirmareliminar}')){return true;}else{return false;}" rendered="#{!procesosBean.procesoTieneEjecuciones}" update=":form1:rowsequence" />
+								</h:column>
+							</h:dataTable>
+						</p:panelGrid>
+					</h:panelGroup>
+					<h:panelGroup>
+						<p:commandButton value="#{messages.boton_guardarentrada}" actionListener="#{procesosBean.guardarEntrada}" onclick="if(confirm('#{messages.mensaje_proceso_confirmarguardar}')){PF('dialogoCargando').show();return true;}else{return false;}" rendered="#{!procesosBean.procesoTieneEjecuciones}" process=":form1:filaEntradaId" update=":form1:filaEntradaId" icon="fa fa-save" />
+						<p:commandButton value="#{messages.boton_cancelar}" actionListener="#{procesosBean.cancelarAgregarEntrada}" onclick="PF('dialogoCargando').show();" process="@this" update=":form1:filaEntradaId" />
+					</h:panelGroup>
+				</h:panelGroup>
+				<h:panelGroup id="rowentradas" rendered="#{not empty procesosBean.entradas}">
+					<hr/>
+					<ui:repeat var="entrada" value="#{procesosBean.entradas}">
+						<p:panelGrid columns="2" layout="grid">
+							<h:panelGroup>
+					  			<h:commandLink actionListener="#{procesosBean.editarEntrada(entrada)}" value="#{procesosBean.obtenerNombreEntrada(entrada)}" style="text-decoration:underline;" onclick="PF('dialogoCargando').show();">
+					  				<f:ajax render=":form1:filaEntradaId" />
+					  			</h:commandLink>
+					  			<br/>
+				  				<p:inputText value="" disabled="true" rendered="#{entrada.tipoEntrada=='TEXT' or entrada.tipoEntrada=='TEXTO_NUMERICO'}" />
+				  				<p:inputTextarea value="" disabled="true" rendered="#{entrada.tipoEntrada=='TEXTAREA'}" />
+				  				<p:inputText value="#{messages.etiqueta_defaultmail}" disabled="true" rendered="#{entrada.tipoEntrada=='EMAIL'}" />
+				  				<h:graphicImage value="/images/calendar.png" rendered="#{entrada.tipoEntrada=='DATE'}" />
+								<p:selectOneMenu value="#{entrada.nombre}" rendered="#{entrada.tipoEntrada=='SELECT' or entrada.tipoEntrada=='LISTA_PREDEFINIDA'}" style="width:100%" >
+									<f:selectItems itemValue="#{data.id}" itemLabel="#{data.text}" value="#{procesosBean.getListaOpcionesEntrada(entrada)}" var="data" /> 
+								</p:selectOneMenu>
+								<p:selectOneRadio value="#{entrada.nombre}" rendered="#{entrada.tipoEntrada=='RADIO' or entrada.tipoEntrada=='RADIO_LISTA_PREDEFINIDA'}" disabled="true" >
+									<f:selectItems itemValue="#{data.id}" itemLabel="#{data.text}" value="#{procesosBean.getListaOpcionesEntrada(entrada)}" var="data" /> 
+								</p:selectOneRadio>
+								<p:selectManyCheckbox value="#{entrada.nombre}" rendered="#{entrada.tipoEntrada=='CHECKBOX'}" disabled="true" layout="pageDirection" selectedClass="checkbox_class" unselectedClass="checkbox_class">
+									<f:selectItems itemValue="#{data.id}" itemLabel="#{data.text}" value="#{procesosBean.getListaOpcionesEntrada(entrada)}" var="data" /> 
+								</p:selectManyCheckbox>
+								<h:panelGroup rendered="#{entrada.tipoEntrada=='FILE'}">
+								    <span class="fileinput-button">
+								        <span>#{messages.etiqueta_seleccione}</span>
+								        <input id="fileupload" type="file" name="files[]" multiple="multiple" disabled="disabled" />
+								    </span>
+								</h:panelGroup>
+								<h:outputText value="#{procesosBean.getEntradaValorSecuencia(entrada)}" rendered="#{entrada.tipoEntrada=='SEQUENCE'}" />
+								<h:outputText value="#{procesosBean.obtenerValorSecuenciaGlobal(entrada.parametroOpcionesId)}" rendered="#{entrada.tipoEntrada=='SECUENCIA_GLOBAL'}" />
+								
+								<h:panelGroup rendered="#{entrada.tipoEntrada=='DIGITALIZACION_CAPTURE'}">
+								    <p:commandButton disabled="true" value="#{messages.boton_digitalizar}" />
+								</h:panelGroup>
+								<h:panelGroup rendered="#{entrada.tipoEntrada=='SALIDA_REPORTE'}">
+								    <p:commandButton disabled="true" value="#{messages.boton_descargar}" />
+								</h:panelGroup>
+				  			</h:panelGroup>
+							<h:panelGroup>
+					  			<br/>
+								<p:commandButton value="#{messages.etiqueta_subir}" actionListener="#{procesosBean.moverEntrada(entrada,1)}" disabled="#{entrada.ordenEntrada == 1}" icon="fa fa-chevron-up" update=":form1:rowentradas" onclick="PF('dialogoCargando').show();" rendered="#{!procesosBean.procesoTieneEjecuciones}" />
+								<p:commandButton value="#{messages.etiqueta_bajar}" actionListener="#{procesosBean.moverEntrada(entrada,2)}" disabled="#{entrada.ordenEntrada == procesosBean.entradas.size()}" icon="fa fa-chevron-down" update=":form1:rowentradas" onclick="PF('dialogoCargando').show();" rendered="#{!procesosBean.procesoTieneEjecuciones}" />
+								<p:commandButton value="#{messages.boton_eliminar}" actionListener="#{procesosBean.eliminarEntrada(entrada)}" onclick="if(confirm('#{messages.mensaje_entrada_confirmareliminar}')){PF('dialogoCargando').show();return true;}else{return false;}" icon="fa fa-remove" process="@this" update=":form1:filaEntradaId :form1:reglas" rendered="#{!procesosBean.procesoTieneEjecuciones}" />
+					  		</h:panelGroup>
+				  		</p:panelGrid>
+					</ui:repeat>
+				</h:panelGroup>
+			</p:panel>
+		</h:panelGroup>
+		
+
+		<h:panelGroup id="reglas" >
+			<p:panel header="#{messages.etiqueta_regla_titulo}" toggleable="true" rendered="#{procesosBean.paso!=null and procesosBean.paso.id gt 0}" >
+				<p:commandButton value="#{messages.boton_agregar}" actionListener="#{procesosBean.agregarRegla}" rendered="#{procesosBean.regla==null and !procesosBean.procesoTieneEjecuciones}" process=":form1:reglas" update=":form1:reglas" icon="fa fa-plus-square" />
+				<h:panelGroup id="paneldetalles" rendered="#{procesosBean.regla!=null}">
+					<ui:repeat var="regla" value="#{procesosBean.regla.detalles}" >
+						<p:panelGrid columns="1" layout="grid" >
+							<h:outputLabel value="#{messages.etiqueta_requerido} #{messages.etiqueta_regla_entrada}" >
+								<br/>
+								<p:selectOneMenu value="#{regla.entrada.id}" >
+									<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombreEntrada}" value="#{procesosBean.entradasReglas}" var="data" /> 
+									<p:ajax process=":form1:paneldetalles" update=":form1:paneldetalles" />
+								</p:selectOneMenu>
+							</h:outputLabel>
+	
+							<h:outputLabel value="#{messages.etiqueta_requerido} #{messages.etiqueta_regla_value}" >
+								<br/>
+								<p:selectOneMenu value="#{regla.contenido}" >
+									<f:selectItems itemValue="#{data.id}" itemLabel="#{data.text}" value="#{procesosBean.getOptionsList(regla)}" var="data" /> 
+								</p:selectOneMenu>
+							</h:outputLabel>
+						</p:panelGrid>
+					</ui:repeat>
+					<p:panelGrid columns="1" layout="grid" id="rowactionregla">
+						<p:commandButton actionListener="#{procesosBean.agregarReglaCombinada}" value="#{messages.boton_agregarcombinedregla}" rendered="#{!procesosBean.procesoTieneEjecuciones}" process="paneldetalles" update="paneldetalles" />
+	
+						<h:outputLabel value="#{messages.etiqueta_requerido} #{messages.etiqueta_regla_accion}" >
+							<br/>
+							<p:selectOneMenu value="#{procesosBean.regla.siguientePasoId}" rendered="#{!procesosBean.regla.finalizaProceso}" >
+								<f:selectItem itemValue="#{null}" itemLabel="#{messages.etiqueta_none}" /> 
+								<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{procesosBean.pasos}" var="data" /> 
+							</p:selectOneMenu>
+						</h:outputLabel>
+						<h:outputLabel value="#{messages.etiqueta_regla_finalizaproceso}" >
+							<br/>
+							<p:selectBooleanCheckbox value="#{procesosBean.regla.finalizaProceso}" > 
+								<p:ajax update=":form1:rowactionregla" />
+							</p:selectBooleanCheckbox> 
+						</h:outputLabel>
+						<h:outputLabel value="#{messages.etiqueta_regla_comentariosrequeridos}" >
+							<br/>
+							<p:selectBooleanCheckbox value="#{procesosBean.regla.campoObservacionesRequerido}" > 
+								<p:ajax process="@this" />
+							</p:selectBooleanCheckbox> 
+						</h:outputLabel>	
+						<h:outputLabel value="#{messages.etiqueta_regla_permiteparalelo}" >
+							<br/>
+							<p:selectBooleanCheckbox value="#{procesosBean.regla.permiteParalelo}" > 
+								<p:ajax process="@this" />
+							</p:selectBooleanCheckbox> 
+						</h:outputLabel>	
+						<h:panelGroup>
+							<br/>
+							<p:commandButton actionListener="#{procesosBean.guardarRegla}" value="#{messages.boton_guardarregla}" onclick="if(confirm('#{messages.mensaje_proceso_confirmarguardar}')){return true;}else{return false;}" rendered="#{!procesosBean.procesoTieneEjecuciones}" process=":form1:reglas" update=":form1:reglas" icon="fa fa-save" />
+							<p:commandButton value="#{messages.boton_cancelarregla}" actionListener="#{procesosBean.cancelarAgregarRegla}" update=":form1:reglas" />
+						</h:panelGroup>
+					</p:panelGrid>
+				</h:panelGroup>
+				<h:panelGroup id="reglalist" rendered="#{not empty procesosBean.reglas}">
+					<hr/>
+					<ui:repeat var="regla" value="#{procesosBean.reglas}">
+						<p:panelGrid columns="2" layout="grid">
+			  				<h:commandLink action="#{procesosBean.modificarRegla(regla)}" value="#{messages.etiqueta_regla_si} #{procesosBean.getReglaDetallesString(regla)} #{messages.etiqueta_regla_ira} #{regla.siguientePaso.nombre}" rendered="#{!regla.finalizaProceso}" >
+								<f:ajax execute=":form1:reglas" render=":form1:reglas" />
+					  		</h:commandLink>
+			  				<h:commandLink action="#{procesosBean.modificarRegla(regla)}" value="#{messages.etiqueta_regla_si} #{procesosBean.getReglaDetallesString(regla)} #{messages.etiqueta_regla_ira} #{messages.etiqueta_regla_finalizaproceso}" rendered="#{regla.finalizaProceso}" >
+								<f:ajax execute=":form1:reglas" render=":form1:reglas" />
+					  		</h:commandLink>
+							<p:commandButton value="#{messages.boton_eliminar}" actionListener="#{procesosBean.eliminarRegla(regla)}" onclick="if(confirm('#{messages.mensaje_regla_confirmareliminar}')){return true;}else{return false;}" rendered="#{!procesosBean.procesoTieneEjecuciones}" icon="fa fa-remove" process=":form1:reglas" update=":form1:reglas" />
+						</p:panelGrid>
+					</ui:repeat>
+				</h:panelGroup>
+			</p:panel>
+		</h:panelGroup>
+
+	</h:panelGroup>
+</p:panelGrid>
+</ui:composition>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:c="http://java.sun.com/jsp/jstl/core" >
+
+<h:outputLabel value="#{ejecucionBean.obtenerNombreEntrada(entrada.entrada)}" style="#{ejecucionBean.data.paso.jsonPasoData.columnasFormulario gt 2?'width:90%':'width:50%'}" >
+	<br/>
+	<h:panelGroup rendered="#{entrada.entrada.tipoEntrada=='TEXT'}">
+		<p:inputText id="entradatypetext" value="#{entrada.valor}" required="#{entrada.entrada.requerido}" maxlength="#{entrada.entrada.longitud}" >
+			<p:ajax event="blur" />
+		</p:inputText>
+		<br />
+		<p:message display="text" for="entradatypetext" />
+	</h:panelGroup>
+
+	<h:panelGroup rendered="#{entrada.entrada.tipoEntrada=='TEXTAREA'}">
+		<p:inputTextarea id="entradaarea" value="#{entrada.valor}" required="#{entrada.entrada.requerido}"  maxlength="#{entrada.entrada.longitud}"  >
+			<p:ajax event="blur" />
+		</p:inputTextarea>
+		<br />
+		<p:message display="text" for="entradaarea" />
+	</h:panelGroup>
+
+	<h:panelGroup rendered="#{entrada.entrada.tipoEntrada=='TEXTO_NUMERICO'}">
+		<p:inputText id="entradanumerica" value="#{entrada.valor}" required="#{entrada.entrada.requerido}" onkeypress="validateInputNumber()" maxlength="#{entrada.entrada.longitud}"  >
+			<p:ajax event="blur" />
+		</p:inputText>
+		<br />
+		<p:message display="text" for="entradanumerica" />
+	</h:panelGroup>
+
+	<h:panelGroup rendered="#{entrada.entrada.tipoEntrada=='EMAIL'}">
+		<p:inputText id="entradatypeemail" value="#{entrada.valor}" required="#{entrada.entrada.requerido}" maxlength="#{entrada.entrada.longitud}" >
+			<f:validator validatorId="co.gov.supernotariado.bachue.correspondencia.util.EmailValidator" />
+			<p:ajax event="blur" update=":form1:rowentradas" />
+		</p:inputText>
+		<br/>
+		<p:message display="text" for="entradatypeemail" />
+	</h:panelGroup>
+
+	<h:panelGroup rendered="#{entrada.entrada.tipoEntrada=='DATE'}">
+		<p:calendar id="entradafecha" value="#{entrada.valorEntradaFecha}" pattern="dd/MM/yyyy" autocomplete="off" mindate="#{entrada.valorMinimoEntrada}" maxdate="#{entrada.valorMaximoEntrada}" locale="#{facesContext.externalContext.requestLocale}" navigator="true" required="#{entrada.entrada.requerido}" showOtherMonths="true" selectOtherMonths="true" style="width:100%" >
+			<p:ajax process="@this" event="dateSelect" /> 
+		</p:calendar>
+		<br/>
+		<p:message display="text" for="entradafecha" />
+	</h:panelGroup>
+
+	<h:panelGroup id="panelselect" rendered="#{entrada.entrada.tipoEntrada=='SELECT' || entrada.entrada.tipoEntrada=='LISTA_PREDEFINIDA'}">
+		<p:selectOneMenu id="entradatypeselect" value="#{entrada.valor}" required="#{entrada.entrada.requerido}" rendered="#{!entrada.verificarReglas and !entrada.verificarAnidados}" 
+			filter="true" filterMatchMode="contains" style="width:100%" >
+			<f:selectItems itemValue="#{data.id}" itemLabel="#{data.text}" value="#{entrada.entrada.listaOpciones}" var="data" /> 
+			<p:ajax update="panelselect" />
+			<f:validator validatorId="co.gov.supernotariado.bachue.correspondencia.util.SelectOneMenuValidator" />
+			<f:attribute name="entrada" value="#{entrada.entrada}" />
+		</p:selectOneMenu>
+		<p:selectOneMenu id="entradatypeselect_2" value="#{entrada.valor}" required="#{entrada.entrada.requerido}" rendered="#{entrada.verificarReglas or entrada.verificarAnidados}" onchange="PF('dialogoCargando').show();" 
+			filter="true" filterMatchMode="contains" style="width:100%" >
+			<f:selectItems itemValue="#{data.id}" itemLabel="#{data.text}" value="#{entrada.entrada.listaOpciones}" var="data" /> 
+			<p:ajax event="change" update=":form1:rowentradas :form1:rownextpaso :form1:infosiguientepaso" listener="#{ejecucionBean.cambiarValorEntrada()}" />
+			<f:validator validatorId="co.gov.supernotariado.bachue.correspondencia.util.SelectOneMenuValidator" />
+			<f:attribute name="entrada" value="#{entrada.entrada}" />
+		</p:selectOneMenu>
+		<p:commandButton actionListener="#{ejecucionBean.agregarNuevoItemListaParametro(entrada.entrada)}" rendered="#{entrada.entrada.tipoEntrada=='LISTA_PREDEFINIDA' and ejecucionBean.validarParametroNuevoItemLista(entrada.entrada)}" icon="fa fa-plus-square" update=":form1:panellistaparametro :form1:titulopanellistaparametro" process="@this" />
+		<p:commandButton actionListener="#{ejecucionBean.editarItemListaParametro(entrada)}" rendered="#{entrada.entrada.tipoEntrada=='LISTA_PREDEFINIDA' and ejecucionBean.validarParametroNuevoItemLista(entrada.entrada)}" icon="fa fa-edit" update=":form1:panellistaparametro :form1:titulopanellistaparametro" process="@this" />
+		<br/>
+		<p:message display="text" for="entradatypeselect" />
+		<p:message display="text" for="entradatypeselect_2" />
+	</h:panelGroup>
+
+	<h:panelGroup rendered="#{entrada.entrada.tipoEntrada=='RADIO' || entrada.entrada.tipoEntrada=='RADIO_LISTA_PREDEFINIDA'}">
+		<p:selectOneRadio id="entradatyperadio" value="#{entrada.valor}" required="#{entrada.entrada.requerido}" rendered="#{!entrada.verificarReglas and !entrada.verificarAnidados}" >
+			<f:selectItems itemValue="#{data.id}" itemLabel="#{data.text}" value="#{entrada.entrada.listaOpciones}" var="data" /> 
+			<p:ajax update="@this" />
+		</p:selectOneRadio>
+		<p:selectOneRadio id="entradatyperadio_2" value="#{entrada.valor}" required="#{entrada.entrada.requerido}" rendered="#{entrada.verificarReglas or entrada.verificarAnidados}" onchange="PF('dialogoCargando').show();" >
+			<f:selectItems itemValue="#{data.id}" itemLabel="#{data.text}" value="#{entrada.entrada.listaOpciones}" var="data" /> 
+			<p:ajax update=":form1:rowentradas :form1:rownextpaso :form1:infosiguientepaso" listener="#{ejecucionBean.cambiarValorEntrada()}" />
+		</p:selectOneRadio>
+		<br/>
+		<p:message display="text" for="entradatyperadio" />
+		<p:message display="text" for="entradatyperadio_2" />
+	</h:panelGroup>
+
+	<h:panelGroup rendered="#{entrada.entrada.tipoEntrada=='CHECKBOX'}">
+		<p:selectManyCheckbox id="entradatypecheckbox" value="#{entrada.listaEntradas}" required="#{entrada.entrada.requerido}" layout="pageDirection" selectedClass="checkbox_class" unselectedClass="checkbox_class" rendered="#{!entrada.verificarReglas and !entrada.verificarAnidados}" >
+			<f:selectItems itemValue="#{data.id}" itemLabel="#{data.text}" value="#{entrada.entrada.listaOpciones}" var="data" />
+			<p:ajax update="@this" />
+		</p:selectManyCheckbox>
+		<p:selectManyCheckbox id="entradatypecheckbox_2" value="#{entrada.listaEntradas}" required="#{entrada.entrada.requerido}" layout="pageDirection" selectedClass="checkbox_class" unselectedClass="checkbox_class" rendered="#{entrada.verificarReglas or entrada.verificarAnidados}" onchange="PF('dialogoCargando').show();" >
+			<f:selectItems itemValue="#{data.id}" itemLabel="#{data.text}" value="#{entrada.entrada.listaOpciones}" var="data" />
+			<p:ajax update=":form1:rowentradas :form1:rownextpaso :form1:infosiguientepaso" listener="#{ejecucionBean.cambiarValorEntrada()}" />
+		</p:selectManyCheckbox>
+		<br/>
+		<p:message display="text" for="entradatypecheckbox" />
+		<p:message display="text" for="entradatypecheckbox_2" />
+	</h:panelGroup>
+
+	<h:panelGroup rendered="#{entrada.entrada.tipoEntrada=='FILE'}">
+		<p:fileUpload fileUploadListener="#{ejecucionBean.cargarArchivos}" value="#{entrada.archivoCargado}" dragDropSupport="false" multiple="false" auto="true" mode="simple" skinSimple="true" update=":form1:rowentradas" label="#{messages.boton_agregararchivos}" >
+			<f:attribute name="valorEntrada" value="#{entrada}" />
+		</p:fileUpload>
+		<p:panelGrid id="panelarchivo" columns="2" layout="grid" rendered="#{entrada.archivoCargado!=null}" >
+			<h:outputText value="#{entrada.archivoCargado.fileName}" />
+			<p:commandButton value="#{messages.boton_eliminar}" actionListener="#{ejecucionBean.borrarArchivos(entrada)}" icon="fa fa-fw fa-remove" >
+				<p:ajax update=":form1:rowentradas" />
+			</p:commandButton>
+ 		</p:panelGrid>
+	</h:panelGroup>
+
+	<h:outputText value="#{ejecucionBean.getEntradaValorSecuencia(entrada.entrada, false)}" rendered="#{entrada.entrada.tipoEntrada=='SEQUENCE'}" />
+	<h:outputText value="#{ejecucionBean.obtenerValorSecuenciaGlobal(entrada.entrada, false)}" rendered="#{entrada.entrada.tipoEntrada=='SECUENCIA_GLOBAL'}" />
+
+	<h:panelGroup rendered="#{entrada.entrada.tipoEntrada=='DIGITALIZACION_CAPTURE'}">
+		<p:commandButton actionListener="#{ejecucionBean.abrirDigitalizacion}" value="#{messages.boton_digitalizar}" icon="fa fa-upload" process="@this" />
+	</h:panelGroup>
+
+	<h:panelGroup rendered="#{entrada.entrada.tipoEntrada=='PLANTILLA_DOCUMENTO'}" >
+		<p:selectOneMenu value="#{entrada.valor}" >
+			<f:selectItems itemValue="#{data.id}" itemLabel="#{data.nombre}" value="#{ejecucionBean.plantillas}" var="data" />
+			<p:ajax process="@this" /> 
+		</p:selectOneMenu>
+		<p:commandButton actionListener="#{ejecucionBean.descargarPlantilla(entrada)}" value="#{messages.boton_descargar}" icon="fa fa-download" process="@parent" style="margin:2px" />
+	</h:panelGroup>
+	
+	<h:panelGroup rendered="#{entrada.entrada.tipoEntrada=='VISOR_ARCHIVO'}">
+		<ui:repeat var="documento" value="#{entrada.documentos}" >
+			<h:commandLink actionListener="#{ejecucionBean.descargarArchivoEntrada(documento, entrada)}" title="#{messages.boton_verdocumento}"  >
+				<f:ajax />
+	                  <p:graphicImage value="../images/findx16.png" width="16"/>
+			</h:commandLink>
+			<h:outputText value="#{documento.nombre}" styleClass="texto_snr" />
+		</ui:repeat>
+	</h:panelGroup>
+
+	<h:panelGroup rendered="#{entrada.entrada.tipoEntrada=='VISOR_ARCHIVOS_GENERAL'}">
+		<p:commandButton value="#{messages.boton_visorarchivos}" actionListener="#{ejecucionBean.consultarArchivosOWCC}" icon="fa fa-fw fa-folder-o" process="@this" update=":form1:panelvisualizardocumentos" onclick="PF('dialogoCargando').show();" />
+	</h:panelGroup>
+
+</h:outputLabel>
+
+</ui:composition>

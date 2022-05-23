@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build-ear" name="SNRCorrespondencia-ear">
+
+	<target name="generate-module-jars">
+		<subant target="build-jar">
+			<fileset dir="../" includes="SNRCorrespondencia-ejb/build.xml"/>
+		</subant>
+		<subant target="build-war">
+			<fileset dir="../" includes="SNRCorrespondencia/build.xml"/>
+		</subant>
+	</target>
+	<tstamp>
+	   <format pattern="yyyyMMdd_HHmm" property="dateTime.ear"/>
+	</tstamp>
+	<target name="build-ear" depends="generate-module-jars">
+	    <ear destfile="${ant.project.name}.ear" appxml="EarContent/META-INF/application.xml">
+			<metainf dir="EarContent/META-INF/" />
+			<fileset dir="" includes="*.jar,*.war" />
+	    	<zipfileset dir="EarContent/lib" includes="*.jar" prefix="lib" />
+	    </ear>
+		<delete file="SNRCorrespondencia-ejb.jar"/>
+		<delete file="SNRCorrespondencia.war"/>
+		<move file="${ant.project.name}.ear" tofile="${ant.project.name}_${dateTime.ear}.ear"/>
+	</target>
+	
+</project>

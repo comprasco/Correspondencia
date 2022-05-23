@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:p="http://primefaces.org/ui" 
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets" >
+
+	<h:panelGroup>
+		<p:commandButton action="#{gestorSesionBean.irAOpcion(1)}" value="#{messages.boton_regresar}" ajax="false" icon="fa fa-arrow-circle-left" />
+	</h:panelGroup>
+	<hr/>
+	<p:panelGrid columns="1" layout="grid" id="filaTabla">
+		<p:dataTable id="datatable" var="list" value="#{rolesGruposBean.list}" sortBy="#{list.id}" tableStyle="table-layout:auto"
+			lazy="true" paginator="true" rows="10" paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} " rowsPerPageTemplate="10,50,100"  >
+			<p:column sortBy="#{list.id}" headerText="#{messages.etiqueta_parametro_id}" style="width:160px" >                
+				<h:outputText value="#{list.id}" />	
+			</p:column>
+			<p:column sortBy="#{list.nombre}" headerText="#{messages.etiqueta_parametro_nombre}" >                
+				<h:outputText value="#{list.nombre}" />	
+			</p:column>
+			<p:column headerText="#{messages.etiqueta_detalle}" style="text-align:center;width:120px" >                
+				<h:commandLink actionListener="#{rolesGruposBean.modificar(list)}" title="#{messages.boton_modificar}" onclick="PF('dialogoCargando').show();" >
+                    <p:graphicImage value="../images/find.png" width="24"/>
+				</h:commandLink>
+			</p:column>
+			<f:facet name="footer">
+        		#{messages.etiqueta_registrosencontrados} #{rolesGruposBean.list.rowCount}
+    		</f:facet>
+   		</p:dataTable>
+	</p:panelGrid>
+</ui:composition>

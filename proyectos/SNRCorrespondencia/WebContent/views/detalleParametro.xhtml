@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets" >
+
+	<p:commandButton action="#{parametrosBean.buscar}" value="#{messages.boton_regresar}" ajax="false" icon="fa fa-arrow-circle-left" immediate="true" />
+	<hr />
+
+	<p:panel header="#{messages.etiqueta_parametro_datosparametro}" toggleable="true" >
+		<p:panelGrid columns="2" layout="grid" rendered="#{parametrosBean.parametro.id gt 0}" >
+			<h:outputLabel value="#{messages.etiqueta_parametro_id}" >
+				<br/>
+				<h:outputText value="#{parametrosBean.parametro.id}" styleClass="texto_snr" />
+			</h:outputLabel>
+			<h:panelGroup></h:panelGroup>
+			
+			<h:outputLabel value="#{messages.etiqueta_usuariocreacion}" >
+				<br/>
+				<h:outputText value="#{parametrosBean.parametro.usuarioCreacion.nombre}" styleClass="texto_snr" />
+			</h:outputLabel>
+			<h:outputLabel value="#{messages.etiqueta_fechacreacion}" >
+				<br/>
+				<h:outputText value="#{parametrosBean.parametro.fechaCreacion}" styleClass="texto_snr" >
+					<f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="#{parametrosBean.timeZone}" />
+				</h:outputText>
+			</h:outputLabel>
+
+			<h:outputLabel value="#{messages.etiqueta_usuariomodificacion}" rendered="#{parametrosBean.parametro.usuarioModificacion != null}" >
+				<br/>
+				<h:outputText value="#{parametrosBean.parametro.usuarioModificacion.nombre}" styleClass="texto_snr" />
+			</h:outputLabel>
+			<h:outputLabel value="#{messages.etiqueta_fechamodificacion}" rendered="#{parametrosBean.parametro.fechaModificacion != null}" >
+				<br/>
+				<h:outputText value="#{parametrosBean.parametro.fechaModificacion}" styleClass="texto_snr" >
+					<f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="#{parametrosBean.timeZone}" />
+				</h:outputText>
+			</h:outputLabel>
+		</p:panelGrid>
+
+		<p:panelGrid columns="2" layout="grid" id="gridtipoparametro" >
+			<h:outputLabel value="#{messages.etiqueta_parametro_tipo}" style="width:50%" >
+				<br/>
+				<p:selectOneMenu value="#{parametrosBean.parametro.tipoParametro}" style="width:100%" disabled="#{parametrosBean.parametro.id gt 0}" >
+					<f:selectItems value="#{parametrosBean.tiposParametros}" /> 
+					<p:ajax update=":form1:filaopciones gridtipoparametro" />
+				</p:selectOneMenu>
+			</h:outputLabel>
+	
+			<h:outputLabel value="(*) #{messages.etiqueta_parametro_nombre}" style="width:50%" >
+				<br/>
+				<p:inputText id="nombre" value="#{parametrosBean.parametro.nombre}" maxlength="50" required="true" disabled="#{parametrosBean.parametro.tipoParametro == 'SISTEMA'}" />
+				<br/>
+				<p:message for="nombre" display="text" />
+			</h:outputLabel>
+	
+			<h:outputLabel value="(*) #{messages.etiqueta_parametro_valor}" style="width:50%" rendered="#{parametrosBean.parametro.tipoParametro == 'SISTEMA'}" >
+				<br/>
+				<p:inputText id="descripcion" value="#{parametrosBean.parametro.descripcion}" maxlength="200" required="true" />
+				<br/>
+				<p:message for="descripcion" display="text" />
+			</h:outputLabel>
+
+			<h:outputLabel value="#{messages.etiqueta_activo}" >
+				<br/>
+				<p:selectBooleanCheckbox value="#{parametrosBean.parametro.activo}" disabled="#{parametrosBean.parametro.tipoParametro == 'SISTEMA'}" /> 
+			</h:outputLabel>
+		</p:panelGrid>
+	</p:panel>
+	
+	<h:panelGroup id="filaopciones" >
+		<p:panel header="#{messages.etiqueta_parametro_secuenciaglobal}" toggleable="true" rendered="#{parametrosBean.parametro.tipoParametro == 'SECUENCIA_GLOBAL'}" >
+			<p:panelGrid columns="1" layout="grid" id="parametrosecuencia" >
+				<p:commandButton value="#{messages.boton_agregar}" actionListener="#{parametrosBean.agregarSecuenciaGlobal}" process=":form1:parametrosecuencia" update=":form1:parametrosecuencia" icon="fa fa-plus-square" />
+				<h:dataTable value="#{parametrosBean.secuenciaGlobal}" var="data" rendered="#{not empty parametrosBean.secuenciaGlobal}">
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.etiqueta_secuenciaentrada_value}" />		
+						</f:facet>
+						<h:inputText id="valorsecuencia" value="#{data.valorSecuencia}" maxlength="10" required="true" />
+						<br/>		
+						<p:message display="text" for="valorsecuencia" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<p:outputLabel value="#{messages.etiqueta_secuenciaentrada_autonumerico}" />		
+						</f:facet>
+						<p:selectBooleanCheckbox value="#{data.autonumerico}" >
+							<p:ajax process=":form1:parametrosecuencia" update=":form1:parametrosecuencia" immediate="true" />
+						</p:selectBooleanCheckbox>		
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<p:outputLabel id="tipofecha" value="#{messages.etiqueta_secuenciaproceso_tipofecha}" />
+							<p:tooltip for="tipofecha" position="bottom" style="width:25%" >
+								<p:outputLabel value="#{messages.etiqueta_secuenciaproceso_tipofecha_tooltip}" />
+							</p:tooltip>
+						</f:facet>
+						<p:selectBooleanCheckbox value="#{data.tipoFecha}" disabled="#{data.autonumerico}" />		
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<p:outputLabel value="#{messages.etiqueta_secuenciaproceso_reiniciarcada}" />		
+						</f:facet>
+						<p:selectOneMenu value="#{data.reiniciarCada}" maxlength="10" disabled="#{!data.autonumerico}" >
+							<f:selectItem itemLabel="#{messages.etiqueta_no}" itemValue="0" />
+							<f:selectItem itemLabel="#{messages.etiqueta_ano}" itemValue="1" />
+						</p:selectOneMenu>
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.etiqueta_secuenciaentrada_tamano}" />		
+						</f:facet>
+						<h:inputText id="tamanosecuencia" value="#{data.tamanoSecuencia}" maxlength="10" required="true" disabled="#{!data.autonumerico}" />		
+						<br/>		
+						<p:message display="text" for="tamanosecuencia" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.etiqueta_secuenciaentrada_activo}" />		
+						</f:facet>
+						<p:selectBooleanCheckbox value="#{data.activo}" />		
+					</h:column>
+					<h:column>
+						<p:commandButton value="#{messages.boton_eliminar}" actionListener="#{parametrosBean.eliminarSecuenciaGlobal(data)}" onclick="if(confirm('#{messages.mensaje_secuenciaentrada_confirmareliminar}')){return true;}else{return false;}" update=":form1:parametrosecuencia" />
+					</h:column>
+				</h:dataTable>
+			</p:panelGrid>
+		</p:panel>
+	
+	
+		<p:panel header="#{messages.etiqueta_archivoplantilla}" toggleable="true" rendered="#{parametrosBean.parametro.tipoParametro == 'PLANTILLA_DOCUMENTO'}" >
+			<p:fileUpload fileUploadListener="#{parametrosBean.cargarArchivos}" dragDropSupport="false" multiple="false" auto="true" update=":form1:filaopciones" label="#{messages.boton_agregararchivos}" />
+    		<p:panelGrid id="panelarchivo" columns="2" layout="grid" rendered="#{parametrosBean.archivoCargado!=null}" >
+				<h:outputText value="#{parametrosBean.archivoCargado.fileName}" />
+				<p:commandButton value="#{messages.boton_eliminar}" actionListener="#{parametrosBean.borrarArchivos}" icon="fa fa-fw fa-remove" update=":form1:filaopciones" process="@this" />
+		 	</p:panelGrid>
+    		<p:panelGrid columns="1" layout="grid" rendered="#{parametrosBean.archivoGuardado!=null}" >
+				<h:outputText value="#{parametrosBean.archivoGuardado.nombre}" />
+		 	</p:panelGrid>
+		</p:panel>
+	
+	
+		<p:panel header="#{messages.etiqueta_parametro_definirdatos}" toggleable="true" rendered="#{parametrosBean.parametro.tipoParametro == 'LISTA_PREDEFINIDA'}" >
+			<p:panelGrid columns="2" layout="grid" >
+				<h:outputLabel value="#{messages.etiqueta_parametro_permiteagregarformulario}" >
+					<br/>
+					<h:selectBooleanCheckbox value="#{parametrosBean.parametro.permiteAgregarFormulario}" />
+				</h:outputLabel>
+				<h:panelGroup></h:panelGroup>
+
+				<h:outputLabel value="#{messages.etiqueta_parametro_tamanodato}" >
+					<br/>
+					<p:inputText id="longituditem" value="#{parametrosBean.parametro.longitudItem}" maxlength="3" required="true" process="@this" onkeypress="validateInputNumber()" >
+						<p:ajax process="@this" />
+					</p:inputText>
+					<br/>
+					<p:message display="text" for="longituditem" />
+				</h:outputLabel>
+				<h:panelGroup></h:panelGroup>
+			</p:panelGrid>
+			
+			<p:panelGrid columns="1" layout="grid" >
+				<p:commandButton actionListener="#{parametrosBean.agregarDatoOpcion}" value="#{messages.boton_agregardato}" icon="fa fa-list-ul" process="filaopciones" update="filaopciones" 
+					oncomplete="PF('tabladatosadicionales').paginator.setPage(PF('tabladatosadicionales').paginator.cfg.pageCount - 1);" />
+				
+				<p:dataTable id="tabladatosadicionales" widgetVar="tabladatosadicionales" var="opcion" value="#{parametrosBean.listaDatosAdicionales}" paginator="true" rows="10" paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} " rowsPerPageTemplate="10,50,100" > 
+        			<p:column headerText="#{messages.etiqueta_parametro_nombredato}" >
+						<p:inputText id="nombredato" value="#{opcion.nombreDato}" maxlength="50" required="true" >
+							<p:ajax process="@this" />
+						</p:inputText>
+						<br/>
+						<p:message display="text" for="nombredato" />
+        			</p:column>
+        			<p:column headerText="#{messages.etiqueta_parametro_tipodato}" >
+						<p:selectOneMenu id="tentradatype" value="#{opcion.tipoDato}" style="width:100%" >
+							<f:selectItems value="#{parametrosBean.tiposDatos}" /> 
+							<p:ajax process="@this" update=":form1:tabladatosadicionales" />
+						</p:selectOneMenu>
+						<br/>
+						<p:message display="text" for="tentradatype" />
+        			</p:column>
+        			<p:column headerText="#{messages.etiqueta_parametro_tamanodato}" >
+						<p:inputText id="longituddato" value="#{opcion.longitud}" maxlength="4" required="true" process="@this" onkeypress="validateInputNumber()" rendered="#{parametrosBean.isTipoCampoLongitud(opcion.tipoDato)}" >
+							<p:ajax process="@this" />
+						</p:inputText>
+						<br/>
+						<p:message display="text" for="longituddato" />
+        			</p:column>
+        			<p:column style="text-align:center;" >
+						<p:commandButton actionListener="#{parametrosBean.removerDatoOpcion(opcion)}" value="#{messages.boton_eliminar}" icon="fa fa-fw fa-remove" process="@this" update=":form1:filaopciones" onclick="if(confirm('#{messages.mensaje_confirmareliminar}')){return true;}else{return false;}" />
+					</p:column>
+				</p:dataTable>
+			</p:panelGrid>
+		</p:panel>
+		
+		<p:panel header="#{messages.etiqueta_entrada_opciones}" toggleable="true" rendered="#{parametrosBean.parametro.tipoParametro == 'LISTA_PREDEFINIDA'}" >
+			<p:panelGrid columns="1" layout="grid" >
+				<p:commandButton actionListener="#{parametrosBean.agregarOpcion}" value="#{messages.boton_agregar}" icon="fa fa-plus-square" process="filaopciones" update="filaopciones" 
+					oncomplete="PF('tablaopciones').paginator.setPage(PF('tablaopciones').paginator.cfg.pageCount - 1);" />
+				
+				<h:outputLabel value=" #{messages.etiqueta_entrada_clavevalor}" >
+					<br/>
+					<p:selectBooleanCheckbox value="#{parametrosBean.parametro.opcionesClaveValor}" >
+						<p:ajax process="@this" update="filaopciones" />
+					</p:selectBooleanCheckbox>
+				</h:outputLabel>
+	
+				<p:dataTable widgetVar="tablaopciones" var="opcion" value="#{parametrosBean.obtenerOpcionesJsonActivas(parametrosBean.parametro)}" paginator="true" rows="10" paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} " rowsPerPageTemplate="10,50,100" >
+					<p:column style="width:48px">
+            			<p:rowToggler />
+        			</p:column>
+        			<p:column headerText="#{messages.etiqueta_entrada_clave}" filterBy="#{opcion.clave}" filterMatchMode="contains" rendered="#{parametrosBean.parametro.opcionesClaveValor}" >
+						<p:inputText id="claveopcion" value="#{opcion.clave}" maxlength="#{parametrosBean.parametro.longitudItem}" required="true" process="@this" />
+						<br/>
+						<p:message display="text" for="claveopcion" />
+        			</p:column>
+        			<p:column headerText="#{messages.etiqueta_entrada_valor}" filterBy="#{opcion.nombre}" filterMatchMode="contains" >
+						<p:inputText id="nombreopcion" value="#{opcion.nombre}" maxlength="#{parametrosBean.parametro.longitudItem}" required="true" process="@this" />
+						<br/>
+						<p:message display="text" for="nombreopcion" />
+        			</p:column>
+        			<p:column style="text-align:center;" headerText="#{messages.etiqueta_entrada_marcarnulo}" >
+						<p:selectBooleanCheckbox value="#{opcion.valorNulo}" process="@this" />
+        			</p:column>
+        			<p:column style="text-align:center;" >
+						<p:commandButton actionListener="#{parametrosBean.removerOpcion(opcion)}" value="#{messages.boton_eliminar}" onclick="if(confirm('#{messages.mensaje_confirmareliminar}')){return true;}else{return false;}" icon="fa fa-fw fa-remove" process="@this" update=":form1:filaopciones" />
+        			</p:column>
+
+					<p:rowExpansion>
+						<p:dataGrid var="dato" value="#{parametrosBean.getListaDatosAdicionales(opcion)}" columns="2" layout="grid" rendered="#{not empty parametrosBean.getListaDatosAdicionales(opcion)}" >
+							<h:outputLabel value="#{parametrosBean.getNombreDato(dato)}" style="width:50%">
+								<h:panelGroup rendered="#{parametrosBean.getTipoDato(dato)=='TEXT'}">
+									<p:inputText id="entradatypetext" value="#{opcion.datosAdicionales[dato]}" maxlength="#{parametrosBean.getLongitudDato(dato)}" >
+										<p:ajax process="@this" />
+									</p:inputText>
+									<br />
+									<p:message display="text" for="entradatypetext" />
+								</h:panelGroup>
+								<h:panelGroup rendered="#{parametrosBean.getTipoDato(dato)=='TEXTO_NUMERICO'}">
+									<p:inputText id="entradanumerica" value="#{opcion.datosAdicionales[dato]}" onkeypress="validateInputNumber()" maxlength="#{parametrosBean.getLongitudDato(dato)}"  >
+										<p:ajax process="@this" />
+									</p:inputText>
+									<br />
+									<p:message display="text" for="entradanumerica" />
+								</h:panelGroup>
+								<h:panelGroup rendered="#{parametrosBean.getTipoDato(dato)=='DATE'}">
+									<p:calendar id="entradafecha" value="#{opcion.datosAdicionales[dato]}" pattern="dd/MM/yyyy" autocomplete="off" locale="#{facesContext.externalContext.requestLocale}" mask="true" navigator="true" showOtherMonths="true" selectOtherMonths="true" style="width:100%" >
+										<p:ajax process="@this" event="dateSelect" /> 
+									</p:calendar>
+									<br/>
+									<p:message display="text" for="entradafecha" />
+								</h:panelGroup>
+								<h:panelGroup id="panelemail" rendered="#{parametrosBean.getTipoDato(dato)=='EMAIL'}">
+									<p:inputText id="entradatypeemail" value="#{opcion.datosAdicionales[dato]}" maxlength="#{parametrosBean.getLongitudDato(dato)}" >
+										<f:validator validatorId="co.gov.supernotariado.bachue.correspondencia.util.EmailValidator" />
+										<p:ajax event="blur" update="panelemail" />
+									</p:inputText>
+									<br/>
+									<p:message display="text" for="entradatypeemail" />
+								</h:panelGroup>
+							</h:outputLabel>
+						</p:dataGrid>
+					</p:rowExpansion>
+				</p:dataTable>
+			</p:panelGrid>
+		</p:panel>
+	</h:panelGroup>
+	<hr />
+	<p:commandButton actionListener="#{parametrosBean.guardar}" value="#{messages.boton_guardar}" onclick="PF('dialogoCargando').show();" ajax="false" icon="fa fa-save" />
+</ui:composition>

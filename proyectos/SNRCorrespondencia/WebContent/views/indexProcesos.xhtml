@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<f:view xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+	locale="#{gestorSesionBean.locale}" >
+	<h:head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    	<title>SNR Correspondencia</title>
+    </h:head>
+	<h:body>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.3/jstree.min.js" />
+		<script src="#{request.contextPath}/js/gestionprocesos.js?v=2" />
+
+		<link href="#{request.contextPath}/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+		<link rel="stylesheet" href="#{request.contextPath}/css/style.css" type="text/css" />
+		<link href="#{request.contextPath}/css/globales.css" rel="stylesheet" type="text/css" />
+
+		<script src="#{request.contextPath}/js/general.js?v=4" />
+
+		<h:form id="form1">
+			<ui:include src="layout.xhtml" />
+		</h:form>
+	</h:body>
+</f:view>

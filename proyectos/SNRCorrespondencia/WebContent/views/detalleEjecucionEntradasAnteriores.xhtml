@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:c="http://java.sun.com/jsp/jstl/core" >
+
+<p:panelGrid columns="1" layout="grid" rendered="#{entrada.entrada.entradaOculta and entrada.entrada.tipoEntrada=='SECUENCIA_GLOBAL'}" >
+	<h:outputLabel value="#{entrada.entrada.nombreEntrada}" >
+		<br/>
+		<h:outputText value="#{entrada.valor}" rendered="#{entrada.entrada.tipoEntrada=='SECUENCIA_GLOBAL'}" styleClass="texto_snr" />
+	</h:outputLabel>
+</p:panelGrid>
+
+<p:panelGrid columns="1" layout="grid" rendered="#{!entrada.entrada.entradaOculta}" >
+	<h:outputLabel value="#{entrada.entrada.nombreEntrada}" >
+		<br/>
+		<h:outputText value="#{entrada.valor}" rendered="#{entrada.entrada.tipoEntrada=='TEXT' or entrada.entrada.tipoEntrada=='TEXTO_NUMERICO' or entrada.entrada.tipoEntrada=='EMAIL' or entrada.entrada.tipoEntrada=='TEXTAREA' or entrada.entrada.tipoEntrada=='SEQUENCE' or entrada.entrada.tipoEntrada=='SECUENCIA_GLOBAL'}" styleClass="texto_snr" />
+		<h:outputText value="#{entrada.valor}" rendered="#{entrada.entrada.tipoEntrada=='DATE'}" styleClass="texto_snr" >
+			<f:convertDateTime pattern="dd/MM/yyyy" timeZone="#{ejecucionBean.timeZone}"/>
+		</h:outputText>
+		<h:outputText value="#{entrada.valorEntradaTexto}" rendered="#{entrada.entrada.tipoEntrada=='SELECT' or entrada.entrada.tipoEntrada=='LISTA_PREDEFINIDA' or entrada.entrada.tipoEntrada=='RADIO' or entrada.entrada.tipoEntrada=='RADIO_LISTA_PREDEFINIDA' or entrada.entrada.tipoEntrada=='CHECKBOX'}" styleClass="texto_snr" />
+		<h:panelGroup rendered="#{entrada.entrada.tipoEntrada=='SALIDA_REPORTE'}">
+			<p:commandButton actionListener="#{ejecucionBean.abrirSalidaReporte(entrada)}" value="#{messages.boton_descargar}" icon="fa fa-download" update=":form1:panelpdfviewer" />
+		</h:panelGroup>
+		<h:panelGroup rendered="#{entrada.entrada.tipoEntrada=='FILE'}">
+			<ui:repeat var="documento" value="#{entrada.documentos}" >
+				<h:commandLink actionListener="#{ejecucionBean.descargarArchivoEntrada(documento, entrada)}" title="#{messages.boton_verdocumento}" >
+					<f:ajax />
+                    <p:graphicImage value="../images/findx16.png" width="16"/>
+				</h:commandLink>
+				<h:outputText value="#{documento.nombre}" styleClass="texto_snr" />
+			</ui:repeat>
+		</h:panelGroup>
+	</h:outputLabel>
+</p:panelGrid>
+
+<p:panelGrid columns="1" layout="grid" rendered="#{entrada.entrada.entradaOculta and entrada.entrada.tipoEntrada=='SALIDA_REPORTE' and entrada.idUsuarioCreacion == ejecucionBean.gestorSesionBean.usuarioActual.id}" >
+	<h:outputLabel value="#{entrada.entrada.nombreEntrada}"  >
+		<br/>
+		<p:commandButton actionListener="#{ejecucionBean.abrirSalidaReporte(entrada)}" value="#{messages.boton_descargar}" icon="fa fa-download" update=":form1:panelpdfviewer" immediate="true" />
+	</h:outputLabel>
+</p:panelGrid>
+
+</ui:composition>

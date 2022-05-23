@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"  xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions" >
+
+	<p:remoteCommand name="refreshButtonList" process="@none" update=":form1:grupobotones"/>
+	<p:remoteCommand name="refreshDataTable" update="@form" />
+
+	<h:commandButton actionListener="#{ejecucionBean.buscar}" style="display:none" >
+		<f:ajax render=":form1:filaTabla :form1:grupobotones" />
+	</h:commandButton>
+
+	<p:commandButton action="#{gestorSesionBean.irAOpcion(1)}" value="#{messages.boton_regresar}" ajax="false" icon="fa fa-arrow-circle-left" />
+	<p:commandButton actionListener="#{ejecucionBean.crear}" value="#{messages.boton_iniciarproceso}" rendered="#{not empty ejecucionBean.procesos and gestorSesionBean.menuActual.id != 5}" ajax="false" icon="fa fa-plus-square" />
+	<hr/>
+	
+	<h:panelGroup rendered="#{ejecucionBean.nivelAcceso != 5}">
+	
+		<h:panelGroup id="rowfiltros1" >
+			<p:panelGrid columns="2" layout="grid" >
+				<h:outputLabel value="#{messages.etiqueta_filtro_secuencia}" style="width:50%" rendered="#{!ejecucionBean.mostrarFiltrosAdicionales}" >
+					<br/>
+					<p:autoComplete value="#{ejecucionBean.filtroSecuencia}" dropdown="true" maxResults="10" maxlength="100" completeMethod="#{ejecucionBean.sugerenciasRadicados}" minQueryLength="2" forceSelection="true" />
+				</h:outputLabel>
+				<h:panelGroup rendered="#{!ejecucionBean.mostrarFiltrosAdicionales}"></h:panelGroup>
+				<p:commandButton value="#{messages.etiqueta_filtrosadicionales}" actionListener="#{ejecucionBean.mostrarFiltrosAdicionales}" process="@this" update=":form1:rowfiltros1 :form1:rowfiltros2" rendered="#{!ejecucionBean.mostrarFiltrosAdicionales}" />
+				<p:commandButton value="#{messages.etiqueta_filtrosadicionalesocultar}" actionListener="#{ejecucionBean.mostrarFiltrosAdicionales}" process="@this" update=":form1:rowfiltros1 :form1:rowfiltros2" rendered="#{ejecucionBean.mostrarFiltrosAdicionales}" />
+			</p:panelGrid>
+			<p:panelGrid columns="2" layout="grid" rendered="#{ejecucionBean.mostrarFiltrosAdicionales}">
+				<h:outputLabel value="#{messages.etiqueta_filtro_procesos}" rendered="#{ejecucionBean.nivelAcceso == 1 and gestorSesionBean.menuActual.id == 4}" style="width:50%" >
+					<br/>
+					<p:selectOneMenu value="#{ejecucionBean.filtroTipoConsulta}" style="width:100%" >
+						<f:selectItem itemLabel="#{messages.etiqueta_todos}" itemValue="#{0}"/>
+						<f:selectItem itemLabel="#{messages.etiqueta_filtro_mispendientes}" itemValue="#{1}"/>
+						<p:ajax event="change" /> 
+					</p:selectOneMenu >
+				</h:outputLabel>
+				<h:outputLabel value="#{messages.etiqueta_estado}" rendered="#{ejecucionBean.nivelAcceso == 1 or gestorSesionBean.menuActual.id == 5}" style="width:50%">
+					<br/>
+					<p:selectOneMenu id="tactivo" value="#{ejecucionBean.filtroActive}" style="width:100%" >
+						<f:selectItem itemLabel="#{messages.etiqueta_todos}" itemValue="#{null}"/>
+						<f:selectItem itemLabel="#{messages.etiqueta_activos}" itemValue="#{true}"/>
+						<f:selectItem itemLabel="#{messages.etiqueta_completados}" itemValue="#{false}"/>
+					</p:selectOneMenu>
+				</h:outputLabel>
+			</p:panelGrid>
+		</h:panelGroup>
+		<h:panelGroup id="rowfiltros2" >
+			<p:panelGrid columns="2" layout="grid" rendered="#{ejecucionBean.mostrarFiltrosAdicionales}" >
+				<h:outputLabel value="#{messages.etiqueta_ingresetextobusqueda}" style="width:50%" >
+					<p:inputText id="multifiltro" value="#{ejecucionBean.filtro}" />
+				</h:outputLabel>
+				<h:panelGroup id="colfiltrouser" width="25" rendered="#{ejecucionBean.nivelAcceso lt 3 and ejecucionBean.filtroTipoConsulta==0 and false}" >
+					<h:outputLabel label="&#160;">
+						<p:autoComplete value="#{ejecucionBean.filtroPorUsuario}" completeMethod="#{ejecucionBean.autocompletarBuscarUsuario}" var="item" itemLabel="#{item.label}" itemValue="#{item}" placeholder="#{messages.etiqueta_buscarporusuario}" converter="autocompleteConverter" inputStyle="width:100%" style="width:80%" >
+							<p:ajax event="itemSelect" listener="#{ejecucionBean.buscarPorUsuario}" process="@this" update=":form1:filaTabla :form1:grupobotones" /> 
+		    				<p:ajax event="change" listener="#{ejecucionBean.buscarPorUsuario}" process="@this" update=":form1:filaTabla :form1:grupobotones" />
+						</p:autoComplete>
+					</h:outputLabel>
+				</h:panelGroup>
+			</p:panelGrid>
+			<p:panelGrid columns="2" layout="grid" rendered="#{ejecucionBean.mostrarFiltrosAdicionales}"  >
+				<h:outputLabel value="#{messages.etiqueta_filtro_secuenciaini}" style="width:50%" >
+					<br/>
+					<p:autoComplete value="#{ejecucionBean.filtroSecuenciaIni}" dropdown="true" maxResults="10" maxlength="100" completeMethod="#{ejecucionBean.sugerenciasRadicados}" minQueryLength="2" forceSelection="true" />
+				</h:outputLabel>
+				<h:outputLabel value="#{messages.etiqueta_filtro_secuenciafin}" style="width:50%" >
+					<br/>
+					<p:autoComplete value="#{ejecucionBean.filtroSecuenciaFin}" dropdown="true" maxResults="10" maxlength="100" completeMethod="#{ejecucionBean.sugerenciasRadicados}" minQueryLength="2" forceSelection="true" />
+				</h:outputLabel>
+			</p:panelGrid>
+		</h:panelGroup>
+		<p:panelGrid columns="1" layout="grid" id="grupobotones" >
+			<h:panelGroup>
+				<p:commandButton value="#{messages.etiqueta_buscar}" actionListener="#{ejecucionBean.buscarConsultar}" icon="lupa" process="@form" update=":form1:filaTabla :form1:grupobotones"  onclick="PF('dialogoCargando').show();" />
+				<p:commandButton value="#{messages.etiqueta_limpiar}" actionListener="#{ejecucionBean.reiniciarConsulta}" process="@form" update="@form"  onclick="PF('dialogoCargando').show();" />
+				<p:commandButton value="#{messages.boton_exportar}" actionListener="#{ejecucionBean.exportar}" ajax="false" icon="fa fa-file-excel-o" rendered="#{ejecucionBean.nivelAcceso != 3 and false}" >
+					<p:fileDownload value="#{ejecucionBean.archivoExportar}" />
+				</p:commandButton>
+				<p:commandButton value="#{messages.boton_exportar}" actionListener="#{ejecucionBean.exportarDistribuidor}" ajax="false" icon="fa fa-file-pdf-o" rendered="#{ejecucionBean.mostrarExportarDistribuidor}" >
+					<p:fileDownload value="#{ejecucionBean.archivoExportar}" />
+				</p:commandButton>
+				<p:commandButton value="#{messages.boton_exportarenvios}" actionListener="#{ejecucionBean.exportarEnvios}" ajax="false" icon="fa fa-file-excel-o" rendered="#{ejecucionBean.mostrarGrillaEnvios}" onclick="PrimeFaces.monitorDownload(null, refreshDataTable);PF('dialogoCargando').show();" >
+					<p:fileDownload value="#{ejecucionBean.archivoExportar}" />
+				</p:commandButton>
+				<p:commandButton value="#{messages.boton_cargarenvios}" icon="fa fa-upload" rendered="#{ejecucionBean.mostrarGrillaEnvios}" >
+					<p:ajax listener="#{ejecucionBean.mostrarCargaEnvios}" update=":form1:grupobotones" process="@this" />
+				</p:commandButton>
+				<p:fileUpload widgetVar="cargarArchivoEnvios" fileUploadListener="#{ejecucionBean.cargarArchivoEnvios}" dragDropSupport="false" multiple="false" auto="true" update="@form" label="#{messages.boton_agregararchivos}" rendered="#{ejecucionBean.mostrarSeccionCargarEnvios}" onstart="PF('dialogoCargando').show();" />
+			</h:panelGroup>
+		</p:panelGrid>
+		<p:panelGrid columns="1" layout="grid" id="filaTabla" >
+			<p:dataTable id="datatable" var="lista" widgetVar="datatable" value="#{ejecucionBean.lista}" rowClasses="#{ejecucionBean.rowClass}" sortBy="#{order.ti.ID_PROCESO_EJECUTADO}" resizableColumns="true" 
+				lazy="true" paginator="true" rows="10" paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} " rowsPerPageTemplate="10,50,100" 
+				tableStyle="table-layout:auto" >
+				<p:column sortBy="#{order.ti.ID_PROCESO_EJECUTADO}" headerText="#{messages.etiqueta_id}" rendered="false" style="width:200px" >                
+					<h:outputText value="#{lista.procesoEjecutado.id}" />	
+				</p:column>
+				<p:column sortBy="#{order.pe.SECUENCIA_PROCESO}" headerText="#{messages.etiqueta_secuencia}" style="width:200px" >                
+					<h:outputText value="#{lista.secuenciaTabla}" rendered="#{not empty lista.secuenciaTabla}" />	
+				</p:column>
+				<p:column headerText="#{messages.etiqueta_check472}" style="width:150px" rendered="#{ejecucionBean.mostrarGrillaEnvios}" >                
+					<p:selectBooleanCheckbox value="#{lista.seleccionadoEnvios}" disabled="#{lista.deshabilitarSeleccionadoEnvios}" rendered="#{lista.mostrarSeleccion}" >
+						<p:ajax process="@this" />
+					</p:selectBooleanCheckbox>
+				</p:column>
+				<p:column sortBy="#{order.p.NOMBRE}" headerText="#{messages.etiqueta_pasoactual}" >                
+					<h:outputText value="#{lista.paso.nombre}" />
+				</p:column>
+				<p:column headerText="#{messages.etiqueta_usuarioogrupo}" rendered="#{gestorSesionBean.menuActual.id == 5 or ejecucionBean.nivelAcceso==1}" style="width:300px" >                
+					<h:outputText value="#{lista.usuarioAsignado.nombre}" />
+				</p:column>
+				<p:column sortBy="#{order.ti.FECHA_CREACION}" headerText="#{messages.etiqueta_fechainicio}" style="width:200px" >
+					<h:outputText value="#{lista.fechaCreacion}" >	
+						<f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="#{ejecucionBean.timeZone}" />
+					</h:outputText>	
+				</p:column>
+				<p:column sortBy="#{order.ti.FECHA_FIN}" headerText="#{messages.etiqueta_fechafin}" rendered="false" style="width:200px" >            
+					<h:outputText value="#{lista.fechaFin}" >	
+						<f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="#{ejecucionBean.timeZone}" />
+					</h:outputText>	
+				</p:column>
+				<p:column headerText="#{messages.etiqueta_datosadicionales}" style="text-align:center;width:120px" >
+					<h:commandLink id="content" title="#{messages.etiqueta_sindatosadicionales}" onclick="return false;" >
+	                    <p:graphicImage value="../images/find.png" width="24"/>
+					</h:commandLink>
+					<p:tooltip for="content" position="bottom" style="width:25%" >
+						<ui:repeat var="entrada" value="#{lista.entradas}" >
+				  			<h:outputLabel value="#{entrada.entrada.nombreEntrada}" />
+				  			<br/>
+			  				<h:outputText value="#{entrada.valor}" rendered="#{entrada.entrada.tipoEntrada=='TEXT' or entrada.entrada.tipoEntrada=='TEXTO_NUMERICO' or entrada.entrada.tipoEntrada=='EMAIL' or entrada.entrada.tipoEntrada=='TEXTAREA' or entrada.entrada.tipoEntrada=='SEQUENCE'}" />
+			  				<h:outputText value="#{entrada.valor}" rendered="#{entrada.entrada.tipoEntrada=='DATE'}" >
+			  					<f:convertDateTime pattern="dd/MM/yyyy" timeZone="#{ejecucionBean.timeZone}"/>
+			  				</h:outputText>
+			  				<h:outputText value="#{entrada.valorEntradaTexto}" rendered="#{entrada.entrada.tipoEntrada=='SELECT' or entrada.entrada.tipoEntrada=='LISTA_PREDEFINIDA' or entrada.entrada.tipoEntrada=='RADIO' or entrada.entrada.tipoEntrada=='RADIO_LISTA_PREDEFINIDA' or entrada.entrada.tipoEntrada=='CHECKBOX' or entrada.entrada.tipoEntrada=='SECUENCIA_GLOBAL'}" />
+							<br/>
+						</ui:repeat>
+	    			</p:tooltip>                
+				</p:column>
+				<p:column headerText="#{messages.boton_digitalizar}" style="text-align:center;width:120px" rendered="#{ejecucionBean.mostrarBotonDigitalizar}" >                
+					<h:commandLink actionListener="#{ejecucionBean.abrirDigitalizacionDirecto(lista)}" title="#{messages.boton_digitalizar}" rendered="#{lista.mostrarDigitalizar}" onclick="PF('dialogoCargando').show();" >
+						<f:ajax execute="@this" />
+	                    <i class="fa fa-upload" />
+					</h:commandLink>
+				</p:column>
+				<p:column headerText="#{gestorSesionBean.menuActual.id == 5?messages.etiqueta_detalles:messages.etiqueta_ejecutaretapa}" style="text-align:center;width:120px" >                
+					<h:commandLink actionListener="#{ejecucionBean.detalles(lista)}" title="#{ejecucionBean.nivelAcceso==6?messages.etiqueta_detalles:messages.etiqueta_ejecutaretapa}" onclick="PF('dialogoCargando').show();" >
+	                    <p:graphicImage value="../images/tareasFrecuentes40V3.png" width="24"/>
+					</h:commandLink>
+				</p:column>
+				<f:facet name="footer">
+	        		#{messages.etiqueta_registrosencontrados} #{ejecucionBean.lista.rowCount}
+	    		</f:facet>
+	   		</p:dataTable>
+		</p:panelGrid>
+
+	</h:panelGroup>
+</ui:composition>
